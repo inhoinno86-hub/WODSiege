@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="고등학생도 이해할 수 있는 WODSiege 앱 설명. 경기 한 판의 흐름, 구현 현황, 남은 작업과 저장 정보를 소개합니다.">
+  <title>WODSiege — 한 경기로 이해하는 앱 설명서</title>
+  <style>
+    :root{--ink:#15243b;--muted:#546174;--paper:#f5f3ed;--white:#fff;--line:#d6dcd9;--orange:#ae390e;--lime:#ddf28a;--blue:#163f6b;--radius:18px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.8 system-ui,-apple-system,"Noto Sans KR","Malgun Gothic",sans-serif;word-break:keep-all;overflow-wrap:anywhere}a{color:var(--blue);text-underline-offset:4px}button{font:inherit;cursor:pointer}button,a,summary{-webkit-tap-highlight-color:transparent}:focus-visible{outline:3px solid #df571e;outline-offset:5px}h1,h2,h3,h4,p{margin:0}h1,h2,h3,h4{line-height:1.3;letter-spacing:-.04em}h1{font-size:clamp(38px,5.6vw,70px);max-width:850px}h2{font-size:clamp(27px,3.5vw,39px);margin:10px 0 22px}h3{font-size:23px;margin:0 0 14px}h4{font-size:18px;margin:0 0 8px}p+p{margin-top:12px}strong{font-weight:750}small,.small{font-size:13px;line-height:1.7}.muted{color:var(--muted)}.eyebrow{font:700 12px/1.6 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase}.wrap{max-width:1120px;margin:auto;padding:0 36px}.skip{position:absolute;top:-100px;left:20px;background:#fff;padding:8px;z-index:9}.skip:focus{top:10px}
+    .masthead{display:flex;justify-content:space-between;gap:20px;padding-top:23px;padding-bottom:23px;border-bottom:1px solid var(--line);font-size:13px}.brand{font-size:19px;letter-spacing:-.05em;font-weight:900}.brand span{color:var(--orange)}.hero{padding-top:66px;padding-bottom:56px}.hero .eyebrow{color:var(--orange);margin-bottom:18px}.lead{font-size:20px;max-width:780px;margin-top:24px}.stamp{display:inline-flex;align-items:center;gap:9px;margin-top:25px;padding:7px 13px;border:1px solid #bdc2b8;border-radius:30px;font-size:13px}.dot{width:8px;height:8px;background:var(--orange);border-radius:50%}.topnote{max-width:800px;margin-top:12px;color:var(--muted);font-size:14px}.nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.nav a{border:1px solid var(--line);border-radius:30px;padding:7px 14px;text-decoration:none;font-size:14px;background:var(--white)}.nav a:hover{border-color:var(--ink)}
+    .scoreboard{background:var(--ink);color:var(--white);border-radius:var(--radius);display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:0;overflow:hidden}.scoreboard>div{padding:26px;border-right:1px solid #465063}.scoreboard>div:last-child{border:0}.scoreboard .label{font-size:12px;letter-spacing:.06em;color:#ccd4de}.scoreboard .big{font-size:28px;line-height:1.4;margin:6px 0;color:var(--lime);font-weight:800}.scoreboard p{font-size:14px;color:#e0e5ec}.section{padding:64px 0;border-bottom:1px solid var(--line)}.section>.eyebrow{color:var(--orange)}.intro{max-width:840px;font-size:18px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:25px}.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:26px}.card .eyebrow{color:var(--muted);margin-bottom:10px}.callout{background:#eaf0e3;border-left:4px solid #728836;border-radius:0 12px 12px 0;padding:20px 24px;margin-top:25px}.callout.warn{background:#fff0e5;border-left-color:var(--orange)}.glossary{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:25px 0 0}.glossary div{padding-top:14px;border-top:2px solid var(--ink)}dt{font-weight:800}dd{margin:7px 0 0;color:var(--muted);font-size:14px}.subsection{margin-top:46px}.steps{list-style:none;padding:0;margin:24px 0 0;counter-reset:step}.steps>li{counter-increment:step;display:grid;grid-template-columns:42px 1fr;gap:18px;padding:0 0 26px}.steps>li:before{content:counter(step,decimal-leading-zero);font:800 17px/42px ui-monospace,monospace;background:var(--ink);color:var(--lime);width:42px;height:42px;text-align:center;border-radius:12px}.steps h4{padding-top:7px}.steps p{max-width:870px}.example{font-size:13px;color:var(--muted);margin-bottom:16px}.versus{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center;text-align:center;background:var(--ink);color:#fff;border-radius:var(--radius);padding:28px;margin-top:22px}.versus strong{font-size:30px;display:block;color:var(--lime)}.versus .vs{font:italic 800 24px/1 ui-monospace,monospace;color:#b9c3d1}.versus small{color:#c8d1dd}.flow{display:grid;grid-template-columns:1fr 32px 1fr 32px 1fr;align-items:center;margin-top:25px}.flow .node{border:1px solid var(--line);background:white;border-radius:12px;padding:20px;min-height:156px}.flow b{display:block;font-size:18px;margin-bottom:7px}.flow p{font-size:14px;color:var(--muted)}.arrow{text-align:center;font-size:24px}
+    .lab{border:1px solid var(--ink);border-radius:var(--radius);overflow:hidden;margin-top:24px}.lab-head{background:#e6eacb;padding:23px 26px}.lab-body{padding:25px;background:#fff}.choices{display:flex;flex-wrap:wrap;gap:9px;margin:15px 0 20px}.choices button{border:1px solid #89919b;border-radius:8px;background:#fff;color:var(--ink);padding:9px 14px;font-size:14px}.choices button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--lime)}.answer{padding:20px;border-left:4px solid var(--orange);background:var(--paper);min-height:150px}.answer h4{margin-bottom:8px}.answer p{font-size:15px}.logic{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--ink);color:#edf3df;padding:22px;border-radius:12px;font:14px/1.85 system-ui,sans-serif;margin:20px 0 0}.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:12px;font-weight:700;background:#e6eed8;color:#315123}.pill.wait{background:#fff0e0;color:#893514}.pill.later{background:#e5eaf1;color:#344964}.feature-list{margin:0;padding-left:20px}.feature-list li+li{margin-top:9px}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin-top:20px;background:white}table{width:100%;border-collapse:collapse;text-align:left;font-size:14px}th,td{padding:14px 18px;vertical-align:top;border-bottom:1px solid var(--line)}th{font-weight:800;background:#e9ede8}tr:last-child td{border-bottom:0}caption{text-align:left;padding:14px 18px;font-size:13px;color:var(--muted)}.check{color:#315123;font-weight:800}.todo{padding:24px 0;border-bottom:1px solid var(--line)}.todo:last-child{border:0}.todo h4{margin:10px 0}.todo .done{margin-top:10px;font-size:14px;color:var(--blue)}.todo .owner{font-size:12px;color:var(--muted);margin-top:8px}.schema-note{font-size:14px;color:var(--muted);margin:14px 0}.schema-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}.schema-grid .card{padding:22px}code{font:13px/1.7 ui-monospace,monospace;background:#edf0ef;padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}details{border:1px solid var(--line);border-radius:12px;background:#fff;margin-top:13px;padding:0 22px}summary{font-weight:750;cursor:pointer;padding:17px 0}details[open]{padding-bottom:20px}details p,details li{font-size:14px}details ul{padding-left:20px}details li+li{margin-top:10px}.sources{font-size:13px;color:var(--muted);padding-top:26px}.sources ul{padding-left:19px;margin:8px 0}.finish{margin:28px 0 0;padding:27px;background:var(--lime);border-radius:12px;font-size:20px;font-weight:800}.footer{display:flex;justify-content:space-between;gap:15px;padding-top:26px;padding-bottom:34px;color:var(--muted);font-size:12px}.print-button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 11px;font-size:12px;color:var(--ink)}
+    @media(max-width:720px){.wrap{padding-left:22px;padding-right:22px}.masthead{font-size:11px}.hero{padding-top:42px;padding-bottom:34px}.lead{font-size:18px}.scoreboard{grid-template-columns:1fr}.scoreboard>div{padding:19px 22px;border-right:0;border-bottom:1px solid #465063}.scoreboard .big{font-size:24px}.grid,.schema-grid{grid-template-columns:1fr}.glossary{grid-template-columns:1fr}.section{padding:42px 0}.card{padding:22px}.flow{grid-template-columns:1fr}.flow .node{min-height:auto}.arrow{transform:rotate(90deg);height:36px}.versus{gap:10px;padding:23px 14px}.versus strong{font-size:24px}.versus p{font-size:14px}.steps>li{gap:12px;grid-template-columns:36px 1fr}.steps>li:before{width:36px;height:36px;line-height:36px;font-size:14px}.steps h4{padding-top:4px}.lab-head,.lab-body{padding:20px}.answer{min-height:200px}.footer{flex-direction:column}.intro{font-size:17px}th,td{padding:12px}.table-wrap table{min-width:530px}.schema-table table{min-width:650px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+    @media print{@page{size:A4;margin:16mm}body{background:white;font-size:10pt;line-height:1.6}.wrap{max-width:none;padding:0}.skip,.nav,.choices,.print-button{display:none}.hero{padding:25px 0}.section{padding:26px 0}h1{font-size:30pt}h2{font-size:21pt}h3{font-size:16pt}.lead,.intro{font-size:12pt}.subsection{margin-top:25px}.card,.todo,.steps>li,.flow,.versus,.scoreboard,.callout,details{break-inside:avoid}.scoreboard,.versus,.logic{background:#eef1e8;color:#15243b}.scoreboard .big,.scoreboard p,.scoreboard .label,.versus strong,.versus small{color:#15243b}.table-wrap{overflow:visible}.table-wrap table{min-width:0;font-size:9pt}th,td{padding:8px}a{color:inherit}.answer{min-height:0}.grid,.schema-grid{gap:12px}.card{padding:17px}.sources{font-size:9pt}.finish{font-size:13pt}details> :not(summary){display:block!important}summary{list-style:none}details:not([open]){padding-bottom:20px}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#problem">본문으로 건너뛰기</a>
+  <header class="masthead wrap"><div class="brand">WOD<span>SIEGE</span> / FIELD GUIDE</div><div>고등학생을 위한 앱 설명서 · 2026.09.06</div></header>
+  <main class="wrap">
+    <div class="hero">
+      <p class="eyebrow">One match, the whole picture</p>
+      <h1>우리 체육관의 도전이<br>믿을 수 있는 기록이 되려면?</h1>
+      <p class="lead">WODSiege는 <strong>체육관끼리 같은 운동으로 대결하고, 영상과 기록을 확인한 뒤 결과를 순위에 반영하는 앱</strong>입니다. 두 체육관의 경기 한 판을 따라가며 지금 만든 앱을 알아봅시다.</p>
+      <div class="stamp"><span class="dot" aria-hidden="true"></span>현재 상태: Android 개발용 파일럿 · 0.1.0</div>
+      <p class="topnote">파일럿은 실제 운영 전에 작게 시험해 보는 버전입니다. 설치 파일은 만들어졌지만 스토어 출시는 하지 않았고, 실제 Galaxy Z Fold7 검증도 남아 있습니다. 이 자료의 독자가 고등학생이라는 뜻이지, 미성년자 이용 정책이 확정됐다는 뜻은 아닙니다.</p>
+      <p class="topnote">후속 준비 업데이트: 기기 사전 점검·백업/복구 도구·HTTPS 배포 설정·운영 승인 준비서를 추가했습니다. 아래 앱 설명과 초기 검증 기록은 유지하며, 최신 결과와 아직 필요한 입력은 <a href="../docs/READINESS-STATUS.md">후속 작업 현황</a>에서 확인할 수 있습니다.</p>
+      <nav class="nav" aria-label="설명서 목차"><a href="#problem">01 왜 필요한가</a><a href="#solution">02 경기 한 판 따라가기</a><a href="#remaining">남은 작업</a><a href="#schema">03 저장되는 정보</a></nav>
+    </div>
+    <aside class="scoreboard" aria-label="현재 상태 요약">
+      <div><div class="label">만든 것</div><div class="big">경기의 처음부터 끝까지</div><p>가입 → 대결 → 증거 → 판정 → 순위</p></div>
+      <div><div class="label">기존 검증 기록</div><div class="big">14 + 8 통과</div><p>서버 테스트 14개 · 브라우저 테스트 8개</p></div>
+      <div><div class="label">다음 확인 지점</div><div class="big">실제 Fold7</div><p>PC 화면 검사를 휴대전화 검사로 착각하지 않기</p></div>
+    </aside>
+
+    <section class="section" id="problem" aria-labelledby="problem-title">
+      <p class="eyebrow">01 / Problem</p><h2 id="problem-title">Problem · 그냥 기록만 비교하면 안 될까?</h2>
+      <p class="intro">A 체육관은 “우리가 5분 만에 끝냈어!”, B 체육관은 “우리는 4분 50초야!”라고 말합니다. 그런데 운동 횟수나 자세 기준이 다르면, 숫자가 빨라도 더 잘했다고 말하기 어렵습니다.</p>
+      <div class="grid">
+        <article class="card"><p class="eyebrow">공통 규칙이 없다면</p><h3>누가 이겼는지부터 다툴 수 있어요.</h3><p>메신저로 약속하고 영상과 기록을 따로 보내면, 어느 규칙에 동의했는지 찾기 어렵습니다. 틀린 결과가 순위에 반영됐을 때 고친 이유도 남기기 어렵고요.</p></article>
+        <article class="card"><p class="eyebrow">이 앱이 하려는 일</p><h3>약속과 증거를 한 경기에 묶어요.</h3><p>운동·선수·시간을 먼저 합의하고 잠급니다. 양측의 증거를 확인한 뒤 결과를 확정하며, 나중에 고치더라도 이전 결과와 변경 이유를 남깁니다.</p></article>
+      </div>
+      <dl class="glossary">
+        <div><dt>Box = 크로스핏 체육관</dt><dd>배송 상자가 아니라, 회원들이 함께 운동하는 체육관과 그 공동체를 말합니다.</dd></div>
+        <div><dt>WOD = 정해 놓은 운동 과제</dt><dd>Workout of the Day의 줄임말입니다. 무슨 동작을 몇 번 하고 어떻게 점수를 낼지 정한 ‘운동 문제지’로 생각하면 됩니다.</dd></div>
+        <div><dt>Siege = 도장깨기 대결</dt><dd>도전하는 체육관이 지키는 체육관과 겨룹니다. 이겨도 체육관 소유권이나 지역 영토를 가져가는 것은 아닙니다.</dd></div>
+      </dl>
+    </section>
+
+    <section class="section" id="solution" aria-labelledby="solution-title">
+      <p class="eyebrow">02 / Solution</p><h2 id="solution-title">Solution · 지민과 민수의 한 경기를 따라가 봅시다.</h2>
+      <p class="intro">가상의 ‘성수 Box’가 경기를 열고, ‘서울숲 Box’가 도전합니다. 각 체육관 대표 한 명이 출전하는 <strong>개인전</strong>입니다. 아래 이름·기록은 설명용 예시이며 실제 회원이나 경기 데이터가 아닙니다.</p>
+      <div class="versus" aria-label="설명용 경기: 성수 Box 지민 대 서울숲 Box 민수">
+        <div><small>DEFENDER · 지키는 쪽</small><strong>성수 Box</strong><p>대표 선수 지민</p></div><div class="vs" aria-hidden="true">VS</div><div><small>CHALLENGER · 도전하는 쪽</small><strong>서울숲 Box</strong><p>대표 선수 민수</p></div>
+      </div>
+      <ol class="steps">
+        <li><div><h4>계정을 만들고, 우리 체육관 소속이 됩니다.</h4><p>선수는 가입 후 체육관에 가입을 신청합니다. 체육관 관리자가 승인하면 주 소속이 정해집니다. 운영자는 앱 전체의 체육관 승인과 분쟁을 담당하는 별도 역할입니다.</p></div></li>
+        <li><div><h4>대결에 참가할 수 있는 체육관인지 확인합니다.</h4><p>각 체육관의 서로 다른 승인 회원 <strong>3명</strong>이 위치 사용에 동의하고 현장 확인을 해야 합니다. 현재 규칙은 체육관 중심에서 <strong>150m 이내</strong>, 위치 오차 <strong>100m 이하</strong>, 측정 후 <strong>10분 이내</strong>입니다. 세 사람이 동시에 확인할 필요는 없습니다. 여기에 <strong>운영자의 체육관 승인</strong>도 있어야 대결에 참가할 수 있습니다.</p><p class="small muted">GPS는 휴대전화가 알려 주는 위치입니다. 한 사람이 여러 계정을 쓰거나 위치를 속이는 문제까지 해결한 것은 아닙니다.</p></div></li>
+        <li><div><h4>같은 운동, 같은 조건으로 약속하고 잠급니다.</h4><p>성수 Box 관리자가 운동, 개인/팀, 일정, 장소 방식을 정합니다. 서울숲 Box의 도전을 수락한 뒤 양측 관리자가 출전 명단에 동의하면 조건과 명단이 잠깁니다. 한 장소에 모이거나 각자 체육관에서 진행할 수 있습니다. 시작 전에는 취소할 수 있지만, 시작 후에는 일방적으로 취소할 수 없습니다.</p></div></li>
+        <li><div><h4>운동을 하고, 영상과 직접 작성한 기록을 제출합니다.</h4><p>예시 운동은 <strong>SIEGE 90</strong>: 스쿼트 15회와 버피 15회를 3라운드, 총 90회 수행하는 10분 제한 과제입니다. 정해진 양을 끝내는 데 걸린 시간을 겨루는 <strong>For Time</strong> 방식입니다. 예정 시각부터 경기를 시작하고 선수별 시간·유효 횟수·무효 횟수·메모·영상 시점을 입력합니다.</p><p>실제 MP4/WebM 영상 파일을 올립니다. 현재는 <strong>체육관 한쪽당 증거 파일 하나, 최대 100MB</strong>입니다. AI가 자세나 점수를 자동으로 판독하지 않으며 앱 안에서 촬영하는 기능도 없습니다.</p><p class="small muted">운동 예시는 소프트웨어 채점 설명용입니다. 개인에게 적합한 운동 처방이나 안전성 확인을 대신하지 않으며, 템플릿은 코치의 운영 승인이 필요합니다.</p></div></li>
+        <li><div><h4>양쪽 모두 제출한 뒤, 서로의 증거를 확인합니다.</h4><p>한쪽만 제출했을 때 상대의 기록과 영상은 숨겨집니다. 양쪽이 제출해야 상대 자료가 열리므로, 상대 숫자를 먼저 보고 자기 기록을 맞추기 어렵게 합니다. 운영자는 확인할 수 있습니다. 영상은 공개 홍보 영상이 아니라 권한 있는 경기 관계자가 보는 검증 자료입니다.</p><p>예정 시각이 토요일 15시라면 제출 마감은 <strong>일요일 15시(+24시간)</strong>, 검토·이의 마감은 <strong>월요일 15시(+48시간)</strong>입니다. “이 기록에 문제가 있어요”라고 이의를 제기하면 판정이 보류됩니다.</p></div></li>
+        <li><div><h4>검토 기간이 끝난 뒤 확정하면, 점수가 반영됩니다.</h4><p>지민이 90회를 5분에, 민수가 90회를 5분 20초에 완료했고 양측이 인정했다고 해 봅시다. 검토 마감 후 체육관 관리자가 확정하면 성수 Box가 승리합니다. <strong>시간이 지났다고 저절로 확정되는 것은 아닙니다.</strong> 이의나 미응답이 있으면 해당 경기와 독립적인 운영자가 근거를 남겨 처리합니다.</p></div></li>
+      </ol>
+
+      <div class="lab" aria-labelledby="lab-title">
+        <div class="lab-head"><p class="eyebrow">잠깐, 이럴 때는?</p><h3 id="lab-title">확정 버튼을 누르면 항상 점수가 오를까요?</h3><p class="small">아래는 실제 서버에 연결하지 않는 설명용 상황 카드입니다.</p></div>
+        <div class="lab-body">
+          <div class="choices" role="group" aria-label="설명할 경기 상황 선택">
+            <button type="button" data-case="early" aria-pressed="true">아직 검토 기간</button><button type="button" data-case="ready" aria-pressed="false">모두 확인 + 기간 종료</button><button type="button" data-case="dispute" aria-pressed="false">상대가 이의 제기</button><button type="button" data-case="missing" aria-pressed="false">한쪽 증거 없음</button><button type="button" data-case="repeat" aria-pressed="false">확정 버튼 다시 누름</button>
+          </div>
+          <div class="answer" aria-live="polite" aria-atomic="true"><h4 id="case-title">기다립니다. 먼저 동의해도 이의 제기 시간은 남겨 둡니다.</h4><p id="case-body">양쪽이 모두 제출하고 서로 확인했더라도 검토 마감 전에는 일반 확정을 할 수 없습니다. 이 기간에는 확인을 마친 쪽도 이의를 제기할 수 있습니다.</p></div>
+          <pre class="logic" aria-label="일반 확정 규칙">이미 확정한 경기인가? → 다시 점수를 주지 않음
+증거가 빠졌거나, 이의가 있거나, 양측 검토가 끝나지 않았나? → 일반 확정 불가
+아직 검토 마감 전인가? → 기다림
+위 조건을 모두 통과하고 관리자가 확정을 요청했나? → 결과와 점수를 한 번 반영</pre>
+          <p class="small muted" style="margin-top:14px">운영 판정은 별도 절차입니다. 분쟁 상태이거나 검토 기한이 지나야 가능하며, 양측 증거 없이 정상 승자를 확정할 수는 없습니다. 증거 미제출은 자동 패배가 아니라 운영자가 무효 처리할 수 있는 사유입니다.</p>
+          <details><summary>모든 상황을 글로 보기</summary><ul><li>검토 기간 중: 양측 동의만으로 바로 확정하지 않습니다.</li><li>양측 제출·검토 완료, 기간 종료: 관리자 요청으로 정상 확정합니다.</li><li>이의 제기: 일반 확정을 멈추고 독립 운영자가 근거를 남깁니다.</li><li>한쪽 증거 없음: 정상 승자를 낼 수 없습니다. 검토 기한 경과 후 운영자가 무효 처리할 수 있습니다.</li><li>이미 확정됨: 같은 요청을 다시 보내도 점수와 보상이 중복되지 않습니다.</li></ul></details>
+        </div>
+      </div>
+
+      <div class="subsection"><h3>시간만 재는 대회인가요?</h3>
+        <div class="grid">
+          <article class="card"><h4>운동 방식도, 참가 부문도 나뉩니다.</h4><p><strong>AMRAP</strong>은 정해진 시간 동안 유효 동작을 많이 하는 방식입니다. <strong>Rx</strong>는 정해진 원형 과제, <strong>Scaled</strong>는 조정한 과제이며 서로 순위를 섞지 않습니다.</p><p>개인전은 한 명씩, 팀전은 세 명씩입니다. 현재 <strong>3인 Open</strong>은 성별·연령 세부 제한을 두지 않은 개발용 구성입니다. 세 명이 각자 같은 운동을 하고 결과를 합칩니다. 릴레이가 아닙니다.</p></article>
+          <article class="card"><h4>끝내지 못했을 때도 기준이 있습니다.</h4><p>For Time 개인전은 완료자가 미완료자보다 앞섭니다. 둘 다 완료하면 빠른 쪽, 둘 다 미완료면 유효 횟수가 많은 쪽이 앞섭니다.</p><p>팀 For Time은 ① 완료한 인원 수 → ② 미완료자들의 유효 횟수 합 → ③ 완료자들의 시간 합 순서로 비교합니다. AMRAP은 유효 횟수를 합칩니다. 비교값이 모두 같으면 무승부입니다.</p><p class="small muted">무효 동작은 유효 횟수에 포함하지 않습니다. 별도로 적은 무효 횟수를 유효 횟수에서 또 빼지는 않습니다.</p></article>
+        </div>
+      </div>
+
+      <div class="subsection"><h3>‘실력 점수’와 ‘쓸 수 있는 포인트’는 달라요.</h3>
+        <div class="grid">
+          <article class="card"><p class="eyebrow">Rating / 실력 비교</p><h4>레이팅은 순위를 위한 점수</h4><p>상대의 실력 점수를 고려하는 <strong>Elo</strong> 방식입니다. 같은 부문에서 양쪽 모두 1000점으로 시작한 첫 보상 대상 경기라면, 승자는 <strong>1012점</strong>, 패자는 <strong>988점</strong>이 됩니다. 항상 12점씩 움직이는 것은 아닙니다.</p><p>개인/팀과 Rx/Scaled별로 따로 계산합니다. 동네·구 선택은 볼 체육관만 거르는 기능이지 별도의 점수를 만드는 기능이 아닙니다. 반영 경기 3회 미만은 임시 등급입니다.</p></article>
+          <article class="card"><p class="eyebrow">Points / 활동 보상</p><h4>Box 포인트는 꾸미기에 쓰는 잔액</h4><p>보상 대상 경기를 정상 완료하면 승패와 관계없이 양쪽 Box가 각각 <strong>20P</strong>를 받습니다. <strong>30P</strong>로 프로필의 ‘챔피언 실드’ 장식 하나를 한 번 구매할 수 있습니다.</p><p>예를 들어 서로 다른 날의 보상 대상 경기 두 번으로 40P를 모아 실드를 사면 10P가 남습니다. 레이팅은 깎이지 않습니다. 현금 결제·환전·거래 기능이 아닙니다.</p></article>
+        </div>
+        <div class="callout"><strong>반복 경기로 점수를 무한히 얻지는 못합니다.</strong><p>같은 두 Box의 경기는 서울 시간의 <strong>예정 경기일</strong> 기준 하루에 먼저 확정된 유효 경기 하나만 레이팅과 보상에 반영합니다. 부문을 바꿔도 같은 제한을 받습니다. 무승부도 유효 경기이며, 서로 레이팅이 다르면 무승부에서도 점수가 변할 수 있습니다.</p></div>
+        <div class="callout warn"><strong>나중에 결과가 잘못된 것으로 밝혀지면?</strong><p>운영자가 이유를 남겨 정정합니다. 이전 결과를 이력에 보존하고, 그 뒤 경기들의 레이팅도 확정 순서대로 다시 계산합니다. 무효 경기의 보상은 회수하며, 하루 한 번 보상 대상이 다른 경기로 옮겨갈 수도 있습니다. 이미 포인트를 썼다면 잔액이 음수가 될 수 있고 추가 소비가 막힙니다. 이는 앱 안의 미정산 포인트이지 현금 청구가 아닙니다.</p></div>
+      </div>
+
+      <div class="subsection"><h3>휴대전화 안에서 모든 일을 하나요?</h3><p>아닙니다. 화면, 규칙을 처리하는 서버, 데이터를 보관하는 저장소가 일을 나눕니다. <strong>API</strong>는 앱이 서버에 “이 기록을 저장해 줘” 같은 요청을 보내는 약속된 통로입니다.</p>
+        <div class="flow" aria-label="휴대전화 화면에서 API 서버를 거쳐 저장소로 이어지는 요청과 응답">
+          <div class="node"><b>① 휴대전화 앱</b><p>가입·경기·Box·순위·내 활동을 보여 주고 입력을 받습니다. 운영자는 운영 화면도 봅니다.</p></div><div class="arrow" aria-hidden="true">↔</div>
+          <div class="node"><b>② 개발 PC의 서버</b><p>누가 요청했는지, 명단·기한·권한이 맞는지 검사하고 판정과 점수를 계산합니다.</p></div><div class="arrow" aria-hidden="true">↔</div>
+          <div class="node"><b>③ 기록과 영상 저장소</b><p>회원·경기·점수 이력은 데이터베이스에, 큰 영상 파일은 별도 폴더에 저장합니다.</p></div>
+        </div>
+        <p class="schema-note">개발자용 이름으로는 화면이 React/TypeScript, Android 포장이 Capacitor, 서버가 Node/Express, 데이터베이스가 SQLite입니다. 이 이름을 외울 필요는 없습니다.</p>
+        <div class="callout warn"><strong>현재 APK만 설치한다고 어디서나 사용할 수 있는 것은 아닙니다.</strong><p><strong>APK</strong>는 Android 설치 파일입니다. 지금은 USB로 연결한 개발 PC의 서버가 켜져 있어야 핵심 기능이 동작합니다. 휴대전화의 <code>localhost:8787</code> 요청을 PC로 이어 주는 개발용 연결을 사용합니다. 독립적인 온라인 서비스가 되려면 서버 배포와 HTTPS 보안 연결이 필요합니다.</p></div>
+        <p style="margin-top:18px">앱은 조작 후 새 상태를 불러오고, 활성 화면에서는 30초마다 다시 조회합니다. 실시간 영상 중계는 아닙니다. 알림도 현재는 <strong>앱 안의 알림</strong>이며 휴대전화 잠금 화면에 뜨는 푸시 알림은 아직 없습니다.</p>
+      </div>
+
+      <div class="subsection" id="evidence"><h3>지금 어디까지 확인했나요?</h3><p>아래는 <strong>2026년 9월 6일의 기존 구현·검증 기록</strong>입니다. 이 설명서를 만들면서 앱 테스트를 새로 실행했다는 의미는 아닙니다.</p>
+        <div class="table-wrap"><table><caption>만들어진 기능과 검증의 범위</caption><thead><tr><th scope="col">확인 대상</th><th scope="col">확인한 내용</th><th scope="col">아직 뜻하지 않는 것</th></tr></thead><tbody>
+          <tr><td><span class="check">서버 14개 통과</span></td><td>가입·권한, 위치 조건, 경기 규칙, 영상 제한, 중복 확정, 분쟁·정정, 점수 재계산·저장</td><td>모든 부정행위 차단이나 대규모 접속 성능 보장</td></tr>
+          <tr><td><span class="check">브라우저 8개 통과</span></td><td>가입·소속 승인, 개인/팀 전체 경기, 영상 재생, 분쟁·정정, 연결 실패 복구. 360/412/840px 폭 검사</td><td>Fold7의 실제 접힘·GPS·키보드·영상 코덱 검증</td></tr>
+          <tr><td><span class="check">Android 빌드 성공</span></td><td>0.1.0 개발용 APK 약 8.3MiB 생성, 개발 서명 확인</td><td>실제 기기 설치 통과나 스토어 심사·출시 완료</td></tr>
+          <tr><td><span class="pill wait">Fold7 미실행</span></td><td>검증 기록 당시 연결된 휴대전화가 없어 수동 검사표를 준비함</td><td>실기기 테스트를 마쳤다는 주장</td></tr>
+        </tbody></table></div>
+        <p class="small muted" style="margin-top:14px">빈 서버에 실제 참가자가 자동으로 채워지지는 않습니다. 회원과 Box를 등록해야 합니다. 화면의 예시 설명과 실제 저장 데이터는 구분해야 합니다.</p>
+      </div>
+
+      <div class="subsection" id="remaining"><h3>남은 작업 · 무엇부터 하면 좋을까요?</h3><p>기능이 있다는 것과 사람들이 안심하고 쓸 준비가 됐다는 것은 다릅니다. 다음은 <strong>추천 진행 순서</strong>입니다. 운영 정책 결정과 외부 배포를 이미 승인받거나 실행했다는 뜻은 아닙니다.</p>
+        <article class="todo"><span class="pill wait">1순위 · 실기기 검증</span><h4>실제 Fold7에서 ‘한 경기 끝까지’ 해 보기</h4><p>설치·서버 연결부터 접기/펼치기, 회전·분할 화면, 큰 글씨·키보드, 위치 권한 거절과 복구, 실제 영상 선택·재생을 확인합니다. 전송 중 잠금·앱 전환·연결 끊김이 생겼을 때 성공으로 잘못 표시하지 않는지도 봅니다.</p><p class="done">완료 기준: 실제 기기 모델·OS를 기록하고, 입력 유지와 개인/팀 경기·판정·정정을 수동 검사표대로 통과.</p><p class="owner">필요한 사람/준비물: 개발자 + 기기 테스터 / Galaxy Z Fold7로 가정한 실제 단말, USB 케이블, 개발 PC. 사용자가 말한 ‘폴더7’의 정확한 모델도 이때 확인.</p></article>
+        <article class="todo"><span class="pill wait">2순위 · 참가자 모집 전 운영 결정</span><h4>체육관과 코치가 실제 경기 규칙을 승인하기</h4><p>어느 지역·누가 참가할지, 체육관과 회원을 어떻게 믿을지, GPS 실패를 어떻게 다룰지 결정해야 합니다. 운동 과제·3인 구성·채점·기한·불참 처리와 Elo·하루 제한·포인트 상한/소멸/환급도 합의가 필요합니다. 현재 숫자들은 <code>pilot-v1</code>이라는 개발용 임시 규칙입니다.</p><p class="done">완료 기준: 미정 정책을 승인된 운영 규칙으로 기록하고, 그 규칙에 맞춰 코드와 테스트를 함께 갱신.</p><p class="owner">필요한 사람: 서비스 책임자 + 참가 Box 관리자·코치 + 분쟁 담당 운영자.</p></article>
+        <article class="todo"><span class="pill wait">3순위 · 실제 개인정보 수집 전</span><h4>영상·위치·계정을 어떻게 보호하고 지울지 정하기</h4><p>수집 동의, 보관 기간, 삭제 요청, 미성년자 이용 조건, 저장 용량과 비용, 백업·복구를 정해야 합니다. 다중 계정·위치 위조 대책과 중립적인 판정 담당자, 이의 처리 기한도 필요합니다. 현재 GPS 검사만으로 실제 사람이나 체육관 운영권을 증명하지는 못합니다.</p><p class="done">완료 기준: 책임자와 처리 절차를 정하고, 권한·삭제·복구 시나리오를 실제로 검증. 관련 정책은 적절한 검토를 거쳐 확정.</p><p class="owner">필요한 사람: 서비스·개인정보 책임자 + 개발자 + 운영 담당자.</p></article>
+        <article class="todo"><span class="pill wait">4순위 · PC 없이 쓰는 서비스 준비</span><h4>서버 운영과 정식 배포 환경 만들기</h4><p>항상 접속 가능한 HTTPS 서버, 영상 저장소, 백업, 오류 감시와 운영 비용을 준비합니다. 사용자가 많아질 때 데이터 조회·저장과 로그인 처리가 버티는지 시험하고 개선해야 합니다. 그다음 정식 서명과 배포 절차를 준비합니다.</p><p class="done">완료 기준: USB와 개발 PC 없이 휴대전화에서 전체 경기를 완료하고, 정한 부하·장애 복구 기준을 통과. 공개 범위·비용·배포는 별도 승인 후 실행.</p><p class="owner">필요한 사람: 개발·서버 운영 담당자 + 배포 계정·비용을 결정할 책임자.</p></article>
+        <article class="todo"><span class="pill later">그다음 · 운영 편의 기능</span><h4>써 보고 불편한 부분을 우선 개선하기</h4><p>관리자 권한 양도·Box 폐쇄·탈퇴, GPS를 대신하는 수동 검토, 여러 도전자 비교·거절·재협의, 독립 심판 배정, 푸시·알림 읽음 처리, 영상 백그라운드 전송·중단 지점 재개, 설문·재참여 분석 등이 남아 있습니다. 현재 조건 재협의는 취소 후 새 경기 생성 방식입니다.</p><p class="done">선정 기준: 첫 참가자에게 실제로 생긴 불편과 운영 부담을 확인한 뒤 우선순위를 정함. 전부 첫 테스트 전에 만들 필요는 없음.</p></article>
+        <article class="todo"><span class="pill later">장기 아이디어 · 현재 미구현</span><h4>시즌·배지·더 넓은 대회는 다음 단계</h4><p>별도 배지 모음, 시즌제, 전국·세계 확장, 자유 운동 과제, 채팅·라이브 기능은 후속 후보입니다. AI 자동 판독은 별도 정확성 검증이 필요한 연구 과제입니다. 현금 내기나 영토 소유권 거래는 현재 앱의 기능이 아닙니다.</p></article>
+      </div>
+    </section>
+
+    <section class="section" id="schema" aria-labelledby="schema-title">
+      <p class="eyebrow">03 / Schema changes</p><h2 id="schema-title">Schema changes · 앱은 무엇을 기억하나요?</h2>
+      <p class="intro"><strong>스키마</strong>는 저장할 정보의 항목과 모양을 정한 설계도입니다. 학교 대회 기록부의 ‘참가자·반·종목·기록·확인자’ 같은 칸을 떠올리면 됩니다. 여기서는 처음 만든 앱의 저장 구조를 설명합니다. <strong>이번 설명서 생성 작업은 앱 코드나 데이터베이스 구조·기존 데이터를 바꾸지 않습니다.</strong></p>
+      <div class="schema-grid">
+        <article class="card"><h4>원본 기록: 무엇이 실제로 있었는가</h4><p>회원과 소속, 합의한 경기 규칙, 제출한 기록과 영상 정보, 확인·이의·판정 이력이 기준입니다. 점수가 이상하면 이 기록을 따라 확인합니다.</p></article>
+        <article class="card"><h4>계산 결과: 원본에서 무엇이 나오는가</h4><p>레이팅, 반영 경기 수, 보상 반영 내역과 포인트 잔액을 저장해 사용합니다. 순위 번호와 동네별 목록은 화면에 보여 줄 때 계산합니다. 잘못된 경기를 정정하면 관련 점수 요약도 다시 맞춥니다.</p></article>
+      </div>
+      <p class="schema-note">아래는 개발 담당자도 확인할 수 있는 전체 저장 묶음 목록입니다. 영어 이름은 코드와 대응하기 위한 표기이므로 외우지 않아도 됩니다. JSON은 이름과 값을 묶어 적는 데이터 형식입니다.</p>
+      <div class="table-wrap schema-table"><table><caption>현재 서버에 저장하는 정보 — 각각 별도 SQL 표가 아니라 하나의 JSON 안에 있는 항목</caption><thead><tr><th scope="col">묶음</th><th scope="col">쉽게 말하면 / 주요 항목</th><th scope="col">역할</th></tr></thead><tbody>
+        <tr><td><code>users</code></td><td>회원 ID·이름·이메일·비밀번호 검증값·선수/운영자 역할·주 소속 Box ID</td><td>원본 회원 정보</td></tr>
+        <tr><td><code>boxes</code></td><td>체육관 ID·이름·주소·동/구·중심 좌표·소개·관리자·회원 명단·현장 확인 시각과 위치·운영 승인/근거·활성 상태·실드 보유 여부</td><td>원본 + 자격/장식 상태</td></tr>
+        <tr><td><code>joins</code></td><td>가입 신청 ID·회원·Box·상태(대기/승인/다른 승인으로 대체됨)</td><td>소속 승인 기록</td></tr>
+        <tr><td><code>matches</code></td><td>경기 ID·제목·양측 Box·고정한 운동 버전·부문·장소·일정/마감·명단/소속 복사본·합의·제출·검토·이의·결과·상태·이력·확정 순서·보상 대상 여부</td><td>경기의 원본과 처리 상태</td></tr>
+        <tr><td><code>videos</code></td><td>영상 ID·경기·Box·업로더·파일 형식·크기·업로드/동의 시각. 영상 파일 자체는 별도 보관</td><td>영상의 설명표와 접근 확인 정보</td></tr>
+        <tr><td><code>sessions</code></td><td>로그인 증표의 검증값 → 회원 ID·만료 시각. 현재 로그인은 24시간 후 만료</td><td>로그인 유지용 보안 정보</td></tr>
+        <tr><td><code>ledger</code></td><td>변경 ID·Box·관련 경기·레이팅/포인트 구분·부문·변동량·당시 잔액·이유·시각</td><td>추가 방식으로 남기는 점수·소비·조정 장부</td></tr>
+        <tr><td><code>notifications</code></td><td>알림 ID·대상 Box·제목·본문·관련 경기·발생 시각</td><td>저장된 앱 내 사건 알림</td></tr>
+        <tr><td><code>ratings</code> / <code>games</code></td><td>Box·개인/팀·Rx/Scaled별 실력 점수와 반영 경기 수</td><td>경기에서 다시 계산할 수 있는 요약</td></tr>
+        <tr><td><code>rewards</code> / <code>points</code></td><td>경기·Box별 반영한 보상, Box별 현재 포인트 잔액</td><td>중복 방지·정정용 요약과 잔액</td></tr>
+        <tr><td><code>nextFinalOrder</code></td><td>다음으로 확정하는 경기에 붙일 순서 번호</td><td>나중에 점수를 같은 순서로 재계산하기 위한 운영 정보</td></tr>
+      </tbody></table></div>
+      <details><summary>경기 안에는 어떤 세부 정보가 들어 있나요?</summary>
+        <ul><li><strong>운동 복사본:</strong> ID·이름·버전·For Time/AMRAP·설명·동작 목록·제한 시간·기준 횟수·Rx/Scaled를 경기 안에 고정합니다. 나중에 템플릿을 바꿔도 이미 합의한 경기의 운동을 몰래 바꾸지 않습니다.</li><li><strong>일정과 출전:</strong> 예정 시각, 제출/검토 마감, 생성·수락·잠금·확정 시각, 체육관별 선수 ID 목록, 합의한 양측을 기록합니다. 잠글 때 선수 ID·이름·당시 Box를 복사해 소속 이전 후에도 그 경기의 출전 소속을 보존합니다.</li><li><strong>제출 한 묶음:</strong> Box별 영상 ID·제출 시각과 선수별 완료 여부·초 단위 시간·유효/무효 횟수·메모·영상의 확인 시점입니다. 제출 후 같은 내용의 재요청은 중복 처리하지 않지만, 다른 내용으로 덮어쓰지는 못합니다.</li><li><strong>검토와 결과:</strong> 확인한 Box 목록, 이의 사유·제기자·시각, 승리 Box 또는 무승부와 근거, 경기 상태를 저장합니다. 이력에는 사건 ID·행위자·시각·종류·세부 내용이 추가되고, 정정할 때 이전 상태/결과도 남습니다. 무승부와 경기 무효는 다른 상태입니다.</li><li><strong>Box 세부 상태:</strong> 원시 현장 위치에는 회원별 위도·경도·오차·측정 시각이 들어갑니다. 서버의 <code>active</code>는 회원·현장 확인 조건이며 <code>operatorVerified</code>는 별도 운영 승인입니다. 실제 경기 자격에는 둘 다 필요합니다. 공개 응답에서는 원시 현장 좌표를 제외하고, 승인 근거도 권한에 따라 제한합니다.</li></ul>
+      </details>
+      <details><summary>휴대전화에도 저장하나요? 다른 사람에게 무엇이 보이나요?</summary>
+        <ul><li><strong>기기 쪽:</strong> <code>localStorage</code>(앱 화면의 지속 저장 공간)에 서버 주소 <code>wodsiege-server</code>와 경기 생성 초안 <code>wodsiege-match-draft</code>를 둡니다. 초안은 생성 성공 후 지우며 영상이나 비밀번호를 저장하는 기능이 아닙니다.</li><li><strong>로그인 증표:</strong> <code>sessionStorage</code>(화면 세션용 저장 공간)의 <code>wodsiege-token</code>을 요청에 붙입니다. 서버는 그 증표의 해시, 즉 원문 대신 계산한 검증값을 저장합니다. 비밀번호도 소금값과 scrypt 검증값으로 저장하며 응답에 보내지 않습니다. 앱을 완전히 종료하면 다시 로그인이 필요할 수 있습니다.</li><li><strong>로그아웃·주소 변경:</strong> 로그아웃은 서버 세션을 없애고 기기의 증표를 지웁니다. 서버 주소 변경은 기기 쪽 로그인 증표를 지우지만, 이전 서버의 계정·경기 데이터 자체를 삭제하지는 않습니다. 만료 세션은 새 로그인 증표를 발급할 때 정리합니다.</li><li><strong>보여 주는 범위:</strong> 서버가 사용자 권한에 맞춰 응답을 만듭니다. 경기 자료는 참가 권한과 제출 상태로 제한하고, 영상은 별도로 권한을 확인합니다. 체육관 주소·중심 위치와 사용자의 원시 현장 위치는 서로 다른 정보입니다.</li></ul>
+      </details>
+      <details><summary>개발자를 위한 저장 방식·통신 약속·변경 주의점</summary>
+        <ul><li><strong>신규 구조:</strong> 앱 구현에서 추가한 SQLite 파일은 <code>data/wodsiege.sqlite</code>입니다. SQL 구조는 <code>state(id INTEGER PRIMARY KEY CHECK(id=1), data TEXT NOT NULL)</code>이며, ID 1의 JSON에 위 묶음을 저장합니다. 테이블이 없다면 생성하고, 이미 있는 상태는 다시 시작해도 유지합니다.</li><li><strong>한 번에 저장:</strong> 하나의 요청이 바꾸는 상태는 트랜잭션이라는 묶음으로 저장합니다. 중간 실패 때 일부 점수만 저장하지 않게 합니다. WAL 저널과 보조 파일도 운영 저장물에 포함되므로 백업은 일관된 DB와 영상 파일을 함께 고려해야 합니다.</li><li><strong>큰 파일:</strong> 영상 본문은 <code>data/uploads/</code>에 영상 ID로 보관합니다. DB의 영상 설명표와 별개이므로 DB만 복사하면 영상을 복원할 수 없습니다. 보관/삭제 자동화와 장기 용량 관리는 아직 없습니다.</li><li><strong>통신 약속:</strong> <code>/api</code> 요청·응답은 주로 JSON이며 로그인 증표를 Bearer 인증 헤더로 전달합니다. 영상 업로드는 파일과 동의를 담는 multipart 형식, 영상 조회는 인증된 파일 응답입니다. 경기 시각은 UTC 기반 ISO 문자열로 주고받고 화면은 현지 시간으로 표시합니다. 하루 한 번 반영 기준은 서울 시간입니다.</li><li><strong>저장하지 않는 화면 결과:</strong> 순위 번호·임시 등급 표시·지역 필터 목록·운영 집계는 원본에서 계산합니다. 기한 알림은 저장 사건 알림 외에 조회 시 생성하는 것도 있습니다. 응답의 <code>updatedAt</code>은 응답 생성 시각이며 모든 항목이 그 시각에 변경됐다는 뜻은 아닙니다.</li><li><strong>정정과 일관성:</strong> 유효한 확정 경기들을 <code>finalOrder</code> 순서로 재계산하고 차이를 조정 장부에 추가합니다. 서버 저장은 한 트랜잭션으로 반영되지만 다른 사용자의 열린 화면은 다음 조회까지 이전 값을 보일 수 있습니다. 부하 상황에서의 반영 시간 보장은 아직 측정하지 않았습니다.</li><li><strong>정책 버전:</strong> 운동 템플릿은 경기별 복사본이 있지만 <code>pilot-v1</code> 정책 상수는 서버 코드에 있습니다. 이 정책 이름이나 운동 버전은 DB 마이그레이션 버전이 아닙니다. 향후 정책 변경 시 과거 경기 재계산에 미칠 영향을 검토해야 합니다.</li><li><strong>삭제·리셋·호환성:</strong> 이번 HTML 작성으로 추가/변경/삭제되는 앱 스키마나 의도적 데이터 손실은 없습니다. 기존 앱 데이터 초기화도 하지 않습니다. 현재는 새 클라이언트와 새 서버가 같은 약속을 사용하며, 체계적인 DB 버전 변환 기능은 없습니다. 향후 표 분리·필드 변경에는 백업, 데이터 이전 절차와 이전 앱 호환성 검증이 필요합니다.</li><li><strong>운영 전 기술 과제:</strong> JSON 통째 저장은 작은 시험 운영을 위한 선택입니다. 대규모 운영을 위해 표 분리·검색 인덱스·동시 접속·비동기 비밀번호 검증 등을 검토해야 합니다. 기존 검사에서 runtime 의존성 취약점은 0건이었지만 개발 도구의 <code>@capacitor/cli → xcode → uuid</code> 경로에 moderate 3건이 기록되어 있습니다. 이 결과를 보안 인증으로 해석해서는 안 되며 개발 도구 호환성을 고려해 후속 조치가 필요합니다.</li></ul>
+      </details>
+      <div class="sources"><strong>이 자료의 근거와 범위</strong><p>기준일 2026-09-06. 기획의 미래상과 구분해 현재 소스와 아래 구현·검증 기록을 설명했습니다. 문서는 외부 글꼴·서버 없이 열리며, 아래 원문 링크는 저장소 폴더 안에서 열 때 사용할 수 있습니다. 기존 소개 자료는 덮어쓰지 않았습니다.</p><ul><li><a href="../docs/IMPLEMENTATION-STATUS.md">구현·검증 현황</a> · <a href="../docs/PILOT-POLICY.md">개발용 파일럿 정책</a> · <a href="../docs/ANDROID-TESTING.md">Fold7 설치·수동 검사표</a></li><li><a href="../docs/API.md">API 명세</a> · <a href="../server/domain.mjs">운동·점수 규칙 소스</a> · <a href="../server/app.mjs">서버·저장·권한 소스</a> · <a href="../src/api.ts">기기 저장·통신 소스</a></li><li><a href="../docs/PLAN-2026-09-06-wodsiege-product-concept.md">처음 기획한 제품 콘셉트</a> · 이 문서는 <strong>eli5</strong>의 ‘문제 → 해결 흐름 → 저장 구조’ 방식으로 작성했습니다.</li></ul></div>
+      <p class="finish">사용자는 같은 규칙으로 대결하고, 증거를 확인한 결과가 체육관의 순위와 활동 기록으로 남는 경험을 하게 됩니다.</p>
+    </section>
+  </main>
+  <footer class="footer wrap"><span>WODSiege · 한 경기로 이해하는 앱 설명서 / 설명용 문서, 실제 경기 화면 아님</span><button type="button" class="print-button" id="print">인쇄 / PDF로 저장</button></footer>
+  <script>
+    const cases = {
+      early: ["기다립니다. 먼저 동의해도 이의 제기 시간은 남겨 둡니다.", "양쪽이 모두 제출하고 서로 확인했더라도 검토 마감 전에는 일반 확정을 할 수 없습니다. 이 기간에는 확인을 마친 쪽도 이의를 제기할 수 있습니다."],
+      ready: ["이제 관리자가 결과를 확정할 수 있습니다.", "양측 제출과 상대 기록 확인이 끝났고, 이의 없이 검토 기한도 지났습니다. 체육관 관리자가 확정을 요청하면 규칙에 따라 결과와 점수를 한 번 반영합니다. 기한 경과만으로 자동 확정되지는 않습니다."],
+      dispute: ["일반 확정을 멈추고 운영 판정으로 넘어갑니다.", "상대가 이의를 제기했으므로 바로 승패를 반영하지 않습니다. 해당 경기와 독립적인 운영자가 근거를 남겨 확정 또는 무효 처리합니다. 분쟁 상태라면 검토 마감 전에도 운영 판정이 가능하지만, 정상 확정에는 양측 증거가 필요합니다."],
+      missing: ["증거가 없다고 상대를 자동 패배시키지는 않습니다.", "한쪽 증거가 없으면 정상 승자를 확정할 수 없습니다. 검토 기한이 지난 뒤 독립 운영자가 이유를 남겨 무효 처리할 수 있습니다. 무효 경기는 정상 경기 보상을 주지 않습니다."],
+      repeat: ["아무 점수도 더 주지 않습니다.", "같은 경기의 확정 요청을 두 번 보내도 첫 확정만 반영합니다. 통신 오류 때문에 버튼을 다시 눌렀다는 이유로 레이팅이나 20P 보상이 두 배가 되지 않습니다."]
+    };
+    document.querySelectorAll('[data-case]').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('[data-case]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      const [title, body] = cases[button.dataset.case];
+      document.getElementById('case-title').textContent = title;
+      document.getElementById('case-body').textContent = body;
+    }));
+    document.getElementById('print').addEventListener('click', () => window.print());
+    let previouslyClosed = [];
+    window.addEventListener('beforeprint', () => {
+      previouslyClosed = [...document.querySelectorAll('details:not([open])')];
+      previouslyClosed.forEach(item => { item.open = true; });
+    });
+    window.addEventListener('afterprint', () => {
+      previouslyClosed.forEach(item => { item.open = false; });
+      previouslyClosed = [];
+    });
+  </script>
+</body>
+</html>

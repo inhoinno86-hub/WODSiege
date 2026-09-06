@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="고등학생도 이해할 수 있게 설명한 WODSiege 서비스 소개 자료">
+  <title>WODSiege — Box의 실력을 겨루는 운동 커뮤니티</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --ink: #f5f3eb;
+      --muted: #aeb5be;
+      --night: #0b1119;
+      --panel: #141e28;
+      --panel-2: #1b2834;
+      --line: rgba(245, 243, 235, .14);
+      --orange: #ff7042;
+      --orange-soft: #ffb18d;
+      --lime: #d4ed47;
+      --blue: #8bd6ff;
+      --shadow: 0 24px 80px rgba(0, 0, 0, .30);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--night);
+      color: var(--ink);
+      font-family: 'Noto Sans KR', system-ui, sans-serif;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .16;
+      background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+    }
+    a { color: inherit; }
+    .wrap { width: min(1140px, calc(100% - 40px)); margin: 0 auto; }
+    .mono { font-family: 'IBM Plex Mono', monospace; letter-spacing: .04em; }
+    .eyebrow { color: var(--lime); font: 600 .78rem/1.4 'IBM Plex Mono', monospace; letter-spacing: .15em; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2 { letter-spacing: -.045em; }
+    h1 { font: 400 clamp(3.5rem, 9vw, 8rem)/.98 'Black Han Sans', sans-serif; max-width: 850px; margin-bottom: 28px; }
+    h2 { font-size: clamp(2rem, 4vw, 3.6rem); line-height: 1.08; margin-bottom: 20px; }
+    h3 { font-size: 1.15rem; line-height: 1.35; margin-bottom: 10px; }
+    .topbar { padding: 26px 0; display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font: 600 .9rem 'IBM Plex Mono', monospace; letter-spacing: .08em; text-decoration: none; }
+    .brand-mark { width: 28px; height: 28px; background: var(--orange); display: grid; place-items: center; color: var(--night); font-weight: 800; transform: rotate(-7deg); }
+    .nav { display: flex; gap: 22px; font-size: .82rem; color: var(--muted); }
+    .nav a { text-decoration: none; }
+    .nav a:hover, .nav a:focus-visible { color: var(--lime); }
+    .hero { padding: 84px 0 110px; position: relative; }
+    .hero::after { content: 'WOD 01'; position: absolute; right: -7vw; top: 110px; color: rgba(255,112,66,.08); font: 400 18rem/.8 'Black Han Sans', sans-serif; pointer-events: none; }
+    .hero-copy { position: relative; z-index: 1; }
+    .hero h1 em { color: var(--orange); font-style: normal; }
+    .hero-lead { max-width: 650px; color: var(--muted); font-size: clamp(1rem, 2vw, 1.2rem); }
+    .hero-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 34px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; padding: 13px 18px; color: var(--night); background: var(--lime); border: 1px solid var(--lime); text-decoration: none; font-weight: 800; font-size: .92rem; }
+    .button:hover, .button:focus-visible { background: var(--orange); border-color: var(--orange); }
+    .button.secondary { color: var(--ink); background: transparent; border-color: var(--line); }
+    .hero-note { color: var(--muted); font-size: .8rem; }
+
+    .scoreboard { margin-top: 64px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); transform: rotate(-1deg); position: relative; z-index: 1; }
+    .scoreboard-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); font-size: .76rem; }
+    .live { color: var(--orange); display: inline-flex; align-items: center; gap: 7px; }
+    .live::before { content: ''; width: 8px; height: 8px; background: var(--orange); border-radius: 50%; box-shadow: 0 0 0 5px rgba(255,112,66,.13); }
+    .scoreboard-main { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; padding: 36px clamp(20px, 6vw, 75px); }
+    .team { display: grid; gap: 10px; }
+    .team:last-child { text-align: right; }
+    .team .label { color: var(--muted); font-size: .78rem; }
+    .team strong { font: 400 clamp(1.6rem, 4vw, 3.6rem)/1 'Black Han Sans', sans-serif; }
+    .score { color: var(--orange); font: 400 clamp(3.8rem, 10vw, 8.4rem)/.8 'IBM Plex Mono', monospace; letter-spacing: -.12em; }
+    .scoreboard-foot { display: flex; justify-content: space-between; gap: 14px; padding: 14px 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .76rem; }
+    .scoreboard-foot b { color: var(--lime); }
+
+    section { padding: 100px 0; position: relative; }
+    .section-head { display: grid; grid-template-columns: .7fr 1.3fr; gap: 40px; align-items: start; margin-bottom: 48px; }
+    .section-head p { max-width: 650px; color: var(--muted); margin: 0; }
+    .section-tag { color: var(--orange); font: 600 .76rem 'IBM Plex Mono', monospace; letter-spacing: .12em; }
+    .problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .problem-card { background: var(--panel); padding: 26px; min-height: 210px; }
+    .problem-card .num { color: var(--orange); font: 600 1.6rem 'IBM Plex Mono', monospace; margin-bottom: 30px; }
+    .problem-card p, .card p { color: var(--muted); font-size: .93rem; margin: 0; }
+
+    .process { background: #101923; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+    .flow-step { min-height: 230px; padding: 23px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); position: relative; }
+    .flow-step::after { content: '→'; position: absolute; right: 18px; top: 19px; color: var(--orange); font: 1.3rem 'IBM Plex Mono', monospace; }
+    .flow-step:last-child::after { content: '✓'; color: var(--lime); }
+    .flow-num { color: var(--lime); font: 600 .78rem 'IBM Plex Mono', monospace; margin-bottom: 42px; }
+    .flow-step p { color: var(--muted); font-size: .88rem; }
+    .flow-code { margin-top: 40px; padding: 20px; background: #0a1017; border-left: 3px solid var(--orange); color: var(--muted); font: .78rem/1.9 'IBM Plex Mono', monospace; }
+    .flow-code b { color: var(--lime); font-weight: 500; }
+
+    .arena { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .arena-card { background: var(--panel); border: 1px solid var(--line); padding: 28px; }
+    .arena-card.accent { border-color: rgba(255,112,66,.48); background: linear-gradient(135deg, rgba(255,112,66,.13), var(--panel) 60%); }
+    .arena-card .icon { color: var(--orange); font-size: 2.4rem; margin-bottom: 22px; }
+    .arena-card ul { color: var(--muted); padding-left: 1.1rem; margin: 18px 0 0; }
+    .arena-card li { margin: 7px 0; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .pill { color: var(--blue); border: 1px solid rgba(139,214,255,.35); padding: 5px 9px; font: .72rem 'IBM Plex Mono', monospace; }
+
+    .trust { background: var(--orange); color: var(--night); }
+    .trust .section-tag { color: var(--night); opacity: .66; }
+    .trust .section-head p { color: rgba(11,17,25,.75); }
+    .trust-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; }
+    .trust h2 { max-width: 620px; }
+    .trust-list { display: grid; gap: 12px; }
+    .trust-item { display: grid; grid-template-columns: 32px 1fr; gap: 10px; padding: 14px 0; border-bottom: 1px solid rgba(11,17,25,.2); }
+    .trust-item b { color: var(--night); }
+    .trust-item span { color: rgba(11,17,25,.72); font-size: .9rem; }
+    .trust-item i { font-style: normal; font: 600 1rem 'IBM Plex Mono', monospace; }
+
+    .rank-grid { display: grid; grid-template-columns: .95fr 1.05fr; gap: 24px; align-items: stretch; }
+    .rank-board { border: 1px solid var(--line); background: var(--panel); padding: 22px; }
+    .rank-board-head { display: flex; justify-content: space-between; color: var(--muted); font-size: .76rem; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .rank-row { display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .rank-row .place { color: var(--orange); font: 600 1.1rem 'IBM Plex Mono', monospace; }
+    .rank-row .box-name { font-weight: 700; }
+    .rank-row .score-small { color: var(--lime); font: 600 .86rem 'IBM Plex Mono', monospace; }
+    .rank-copy { padding: 24px 0; }
+    .rank-copy p { color: var(--muted); }
+    .mini-note { padding: 16px; border-left: 3px solid var(--blue); background: rgba(139,214,255,.08); color: var(--muted); font-size: .85rem; }
+
+    .roadmap { background: #101923; border-top: 1px solid var(--line); }
+    .roadmap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .phase { background: var(--panel); padding: 26px; min-height: 230px; }
+    .phase h3 { color: var(--orange); }
+    .phase p { color: var(--muted); font-size: .9rem; }
+    .phase small { display: block; margin-top: 30px; color: var(--lime); font: .72rem 'IBM Plex Mono', monospace; }
+    .decision { margin-top: 30px; padding: 18px 20px; border: 1px dashed rgba(212,237,71,.5); color: var(--muted); font-size: .88rem; }
+    .decision strong { color: var(--lime); }
+
+    footer { padding: 50px 0 70px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
+    footer .footer-top { display: flex; justify-content: space-between; gap: 24px; align-items: end; }
+    footer strong { color: var(--ink); font: 400 2rem 'Black Han Sans', sans-serif; }
+    .source { margin-top: 35px; color: #6f7a86; font-size: .74rem; }
+    :focus-visible { outline: 3px solid var(--lime); outline-offset: 4px; }
+    @media (max-width: 760px) {
+      .wrap { width: min(100% - 28px, 600px); }
+      .topbar { padding: 20px 0; }
+      .nav { display: none; }
+      .hero { padding: 60px 0 75px; }
+      .hero::after { font-size: 8rem; top: 170px; right: -10px; }
+      .scoreboard-main { gap: 9px; padding: 28px 14px; }
+      .team strong { font-size: 1.4rem; }
+      .score { font-size: 3.4rem; }
+      section { padding: 72px 0; }
+      .section-head, .trust-grid, .rank-grid { grid-template-columns: 1fr; gap: 20px; }
+      .problem-grid, .flow, .roadmap-grid { grid-template-columns: 1fr; }
+      .flow-step { min-height: auto; }
+      .flow-step::after { content: '↓'; }
+      .arena { grid-template-columns: 1fr; }
+      footer .footer-top { align-items: start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .scoreboard { animation: settle .9s ease-out both; }
+      @keyframes settle { from { transform: translateY(16px) rotate(-1deg); } to { transform: translateY(0) rotate(-1deg); } }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap topbar">
+    <a class="brand" href="#top" aria-label="WODSiege 처음으로"><span class="brand-mark">W</span> WODSIEGE</a>
+    <nav class="nav" aria-label="페이지 이동">
+      <a href="#problem">왜 필요한가</a>
+      <a href="#solution">어떻게 경기하나</a>
+      <a href="#trust">공정성</a>
+      <a href="#roadmap">어디까지 만들까</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="wrap hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Box vs Box / CrossFit community app</p>
+        <h1>운동 기록에<br><em>도전장</em>을 붙이다.</h1>
+        <p class="hero-lead">WODSiege는 CrossFit 운동자가 자기 Box를 대표해 다른 Box와 같은 WOD를 겨루는 앱입니다. 기록을 남기는 데서 끝나지 않고, 함께 준비하고, 경기하고, 결과를 확인합니다.</p>
+        <div class="hero-cta">
+          <a class="button" href="#solution">경기 흐름 보기 ↓</a>
+          <span class="hero-note">아직 개발 전인 제품 개념안입니다.</span>
+        </div>
+      </div>
+
+      <div class="scoreboard" aria-label="WODSiege 경기 기록판 예시">
+        <div class="scoreboard-head mono"><span class="live">MATCH PREVIEW</span><span>WOD 01 · FOR TIME · RX</span></div>
+        <div class="scoreboard-main">
+          <div class="team"><span class="label mono">DEFENDING BOX</span><strong>MAPO<br>ATHLETICS</strong><span class="label">도장을 지키는 Box</span></div>
+          <div class="score">VS</div>
+          <div class="team"><span class="label mono">CHALLENGER BOX</span><strong>HAN RIVER<br>WOD CLUB</strong><span class="label">도전장을 낸 Box</span></div>
+        </div>
+        <div class="scoreboard-foot mono"><span>영상 + 카운팅 검토 대기</span><b>같은 조건으로 겨루기</b></div>
+      </div>
+    </section>
+
+    <section id="problem" class="wrap">
+      <div class="section-head">
+        <div><span class="section-tag">01 / PROBLEM</span><h2>운동은 열심히 하는데,<br>같이 겨룰 방법은?</h2></div>
+        <p>오늘의 WOD 기록은 남아도 “누구와 어떤 조건으로 비교할지”는 애매할 수 있습니다. WODSiege는 운동자를 정식 대결의 주인공으로 연결합니다.</p>
+      </div>
+      <div class="problem-grid">
+        <article class="problem-card"><div class="num">01</div><h3>혼자 보는 기록</h3><p>기록이 좋아졌는지는 알 수 있지만, 비슷한 수준의 상대와 실제로 겨뤄볼 기회는 따로 찾아야 합니다.</p></article>
+        <article class="problem-card"><div class="num">02</div><h3>서로 다른 조건</h3><p>같은 이름의 WOD라도 무게, 동작, 판정 기준이 다르면 누가 이겼는지 공정하게 말하기 어렵습니다.</p></article>
+        <article class="problem-card"><div class="num">03</div><h3>결과를 믿기 어려움</h3><p>기록만 입력하면 실수가 있었는지 확인하기 어렵습니다. 영상과 카운팅 같은 근거가 필요합니다.</p></article>
+      </div>
+    </section>
+
+    <section id="solution" class="process">
+      <div class="wrap">
+        <div class="section-head">
+          <div><span class="section-tag">02 / SOLUTION</span><h2>도장 대결은<br>이렇게 진행됩니다.</h2></div>
+          <p>여기서 <b>Box</b>는 운동자가 소속된 체육관이자 대결의 팀입니다. <b>WOD</b>는 그날 수행할 운동 구성과 기록 기준을 뜻합니다.</p>
+        </div>
+        <div class="flow">
+          <article class="flow-step"><div class="flow-num">STEP 01</div><h3>도전장 공개</h3><p>방어 Box가 WOD, 운동 수준, 일정, 장소, 판정 기준을 공개합니다.</p></article>
+          <article class="flow-step"><div class="flow-num">STEP 02</div><h3>도전과 합의</h3><p>도전 Box가 신청하고, 양쪽이 선수 명단과 조건을 확인해 잠급니다.</p></article>
+          <article class="flow-step"><div class="flow-num">STEP 03</div><h3>수행과 제출</h3><p>같은 장소 또는 각자의 Box에서 경기하고 영상과 카운팅 기록을 제출합니다.</p></article>
+          <article class="flow-step"><div class="flow-num">STEP 04</div><h3>검증과 결과</h3><p>양쪽이 검토하고, 이견이 있으면 운영자가 판정한 뒤 승패와 순위를 반영합니다.</p></article>
+        </div>
+        <div class="flow-code"><b>경기 상태</b><br>도전장 공개 → 신청 → 합의·조건 잠금 → 경기 진행<br>→ 기록 제출 → 검증 → 결과 확정 → 레이팅·순위 반영</div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="section-head">
+        <div><span class="section-tag">03 / PLAY MODES</span><h2>개인전도, 단체전도<br>Box를 대표합니다.</h2></div>
+        <p>처음에는 비교하기 쉬운 경기부터 시작합니다. 여러 팀 규칙을 한꺼번에 넣기보다, 모두가 이해할 수 있는 한 가지 기준을 먼저 만드는 방식입니다.</p>
+      </div>
+      <div class="arena">
+        <article class="arena-card accent"><div class="icon">◉</div><h3>개인전</h3><p>방어 Box의 대표 1명과 도전 Box의 대표 1명이 같은 WOD를 수행합니다.</p><ul><li>개인 기록은 경기 이력에 보관</li><li>결과는 해당 Box의 개인전 레이팅에 반영</li></ul><div class="pill-row"><span class="pill">1 vs 1</span><span class="pill">개인 기록</span></div></article>
+        <article class="arena-card"><div class="icon">◉◉</div><h3>단체전</h3><p>양쪽 Box가 같은 규칙의 팀을 꾸려 함께 겨룹니다. 초기에는 고정된 한 가지 팀 구성을 후보로 둡니다.</p><ul><li>팀 정원과 구성은 사전 합의</li><li>개별 수행 합산형부터 검토</li></ul><div class="pill-row"><span class="pill">TEAM</span><span class="pill">같은 구성</span></div></article>
+      </div>
+    </section>
+
+    <section id="trust" class="trust">
+      <div class="wrap trust-grid">
+        <div><span class="section-tag">04 / TRUST</span><h2>기록보다 중요한 건<br>“그 결과를 믿을 수 있나?”입니다.</h2><p>WODSiege는 입력된 숫자 하나만 보고 승패를 정하지 않는 방향을 제안합니다.</p></div>
+        <div class="trust-list">
+          <div class="trust-item"><i>01</i><div><b>같은 WOD 버전</b><br><span>무게, 동작, 반복 횟수, 시작·종료 조건을 경기 전에 공개합니다.</span></div></div>
+          <div class="trust-item"><i>02</i><div><b>영상과 카운팅</b><br><span>연속 영상과 유효 반복 수, 무효 동작, 판정 메모를 연결합니다.</span></div></div>
+          <div class="trust-item"><i>03</i><div><b>이의 제기와 보류</b><br><span>이견이 생기면 결과를 잠시 보류하고, 근거를 확인한 뒤 확정합니다.</span></div></div>
+          <div class="trust-item"><i>04</i><div><b>사람이 최종 판정</b><br><span>초기에는 AI가 아니라 사람이 분쟁을 검토합니다. AI 카운팅은 후속 연구입니다.</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="section-head">
+        <div><span class="section-tag">05 / GROW</span><h2>승패는 기록되고,<br>성장은 쌓입니다.</h2></div>
+        <p>결과가 확정되면 도전·방어 이력과 레이팅이 갱신됩니다. 레이팅은 경쟁 실력, 활동 포인트는 앱 안에서 쓰는 별도 잔액입니다.</p>
+      </div>
+      <div class="rank-grid">
+        <div class="rank-board" aria-label="지역 순위 예시">
+          <div class="rank-board-head mono"><span>SEOUL · RX · SEASON 01</span><span>UPDATED 18:42</span></div>
+          <div class="rank-row"><span class="place">01</span><span class="box-name">MAPO ATHLETICS</span><span class="score-small">1,124</span></div>
+          <div class="rank-row"><span class="place">02</span><span class="box-name">HAN RIVER WOD CLUB</span><span class="score-small">1,098</span></div>
+          <div class="rank-row"><span class="place">03</span><span class="box-name">EULJIRO ENGINE</span><span class="score-small">1,071</span></div>
+        </div>
+        <div class="rank-copy"><h3>두 점수를 섞지 않는 이유</h3><p>레이팅은 경기 결과로만 움직여야 합니다. 포인트를 써서 Box 프로필을 꾸민다고 경기 실력이 내려가면 이상하기 때문입니다.</p><div class="mini-note"><b>레이팅</b> = 대결 성과를 나타내는 점수<br><b>활동 포인트</b> = 프로필 꾸미기·홍보 등에 쓰는 잔액</div></div>
+      </div>
+    </section>
+
+    <section id="roadmap" class="roadmap">
+      <div class="wrap">
+        <div class="section-head">
+          <div><span class="section-tag">06 / ROADMAP</span><h2>처음부터 거대한 리그를<br>만들지는 않습니다.</h2></div>
+          <p>첫 목표는 “소수의 Box가 한 경기를 끝까지 치르고, 다시 참여하고 싶은지”를 확인하는 것입니다.</p>
+        </div>
+        <div class="roadmap-grid">
+          <article class="phase"><h3>1단계 · MVP</h3><p>가입과 Box 등록, 개인전, 고정 단체전, 검토된 WOD, 영상 제출, 수동 판정, 파일럿 지역 순위를 연결합니다.</p><small>한 경기를 끝까지 완료하기</small></article>
+          <article class="phase"><h3>2단계 · 확장</h3><p>자유 WOD, 여러 팀 구성, 친선전, 시즌·등급, 전국 순위, Box 홍보 노출을 검토합니다.</p><small>반복 경기 운영 안정화 후</small></article>
+          <article class="phase"><h3>3단계 · 연구</h3><p>개인 자유 매칭, 협동 WOD, 제휴 혜택, 세계 순위, 다국어, AI 판정을 검토합니다.</p><small>참여 규모와 정확도 확인 후</small></article>
+        </div>
+        <div class="decision"><strong>아직 정해야 하는 것:</strong> 첫 출시 지역, Box 확인 방법, 팀 구성, WOD 채점 규칙, 영상 보관·촬영 동의, 미성년 참여 정책 등은 개발 전에 결정해야 합니다.</div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="section-head">
+        <div><span class="section-tag">07 / ELI5</span><h2>한 문장으로 다시 말하면?</h2></div>
+        <p>친구 학교와 체육대회에서 겨룬다고 생각해 보세요. 다만 종목과 규칙을 미리 맞추고, 경기 영상을 남기고, 결과를 확인한 뒤 다음 도전으로 이어가는 앱입니다.</p>
+      </div>
+      <div class="flow-code"><b>WODSiege의 약속</b><br>같은 조건으로 겨루고 → 근거를 남기고 → 결과를 공정하게 확인하고<br>→ 우리 Box의 다음 목표를 만든다.</div>
+    </section>
+
+    <section class="wrap" id="schema">
+      <div class="section-head">
+        <div><span class="section-tag">08 / SCHEMA CHANGES</span><h2>데이터는 무엇을<br>기억해야 할까요?</h2></div>
+        <p>이 문서는 제품 개념안이라 실제 데이터베이스를 바꾸지는 않습니다. 다만 앱을 만들 때 경기의 근거가 사라지지 않도록 아래 연결을 보존해야 합니다.</p>
+      </div>
+      <div class="problem-grid">
+        <article class="problem-card"><div class="num">01</div><h3>누가 어디에 소속됐나</h3><p>사용자, Box, 역할, 경기 당시 소속을 남깁니다. 나중에 Box를 옮겨도 과거 경기의 소속은 바뀌지 않습니다.</p></article>
+        <article class="problem-card"><div class="num">02</div><h3>어떤 조건으로 했나</h3><p>WOD 버전, 참가 부문, 팀 구성, 장소·일시, 판정 규칙을 결과와 함께 보관합니다.</p></article>
+        <article class="problem-card"><div class="num">03</div><h3>왜 이 결과가 나왔나</h3><p>원시 기록, 영상, 카운팅, 이의 제기, 최종 판정, 레이팅·포인트 변경 이력을 연결합니다. 실제 DB 테이블 이름은 아직 정하지 않았습니다.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-top"><div><strong>WODSieGE</strong><br><span>Train together. Challenge clearly.</span></div><div class="mono">PRODUCT CONCEPT / v0.1</div></div>
+      <p class="source">이 자료는 <code>docs/PLAN-2026-09-06-wodsiege-product-concept.md</code>를 바탕으로 만든 고등학생 대상 소개 자료입니다. 문서의 정책은 아직 제안 단계이며, 실제 출시 전 결정이 필요합니다.</p>
+    </div>
+  </footer>
+</body>
+</html>
