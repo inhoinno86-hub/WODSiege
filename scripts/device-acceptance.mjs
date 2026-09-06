@@ -147,7 +147,9 @@ function selectedDevice(adb, explicitSerial) {
     if (!match) throw new Error("Requested device serial is not connected in device state.");
     return match;
   }
-  if (ready.length !== 1) throw new Error(`Expected exactly one ready adb device; found ${ready.length}. Use --serial when needed.`);
+  if (ready.length !== 1) {
+    throw new Error(`Expected exactly one ready adb device; found ${ready.length}. Use --serial when needed.`);
+  }
   return ready[0];
 }
 
@@ -201,14 +203,21 @@ function collectEvidence(adb, serial, runDir, label) {
   ensurePrivateDir(evidenceDir);
   const errors = [];
   try {
-    const png = run(adb, ["-s", serial, "exec-out", "screencap", "-p"], { encoding: null, timeout: 15_000 });
+    const png = run(adb, ["-s", serial, "exec-out", "screencap", "-p"], {
+      encoding: null,
+      timeout: 15_000,
+    });
     writePrivate(resolve(evidenceDir, `${safeLabel}.png`), png);
   } catch (error) {
     errors.push(`screenshot: ${error.message}`);
   }
   try {
-    run(adb, ["-s", serial, "shell", "uiautomator", "dump", "/sdcard/wodsiege-window.xml"], { timeout: 15_000 });
-    const xml = run(adb, ["-s", serial, "shell", "cat", "/sdcard/wodsiege-window.xml"], { timeout: 15_000 });
+    run(adb, ["-s", serial, "shell", "uiautomator", "dump", "/sdcard/wodsiege-window.xml"], {
+      timeout: 15_000,
+    });
+    const xml = run(adb, ["-s", serial, "shell", "cat", "/sdcard/wodsiege-window.xml"], {
+      timeout: 15_000,
+    });
     writePrivate(resolve(evidenceDir, `${safeLabel}.xml`), xml);
   } catch (error) {
     errors.push(`ui-dump: ${error.message}`);
@@ -223,7 +232,9 @@ function collectEvidence(adb, serial, runDir, label) {
 }
 
 async function promptCheckpoint(rl, [id, instruction], nonInteractive) {
-  if (nonInteractive) return { id, status: "PENDING", note: "Non-interactive run; user acceptance required." };
+  if (nonInteractive) {
+    return { id, status: "PENDING", note: "Non-interactive run; user acceptance required." };
+  }
   output.write(`\n[${id}] ${instruction}\n`);
   while (true) {
     const answer = (await rl.question("결과 입력 [p=PASS / f=FAIL / s=SKIP]: ")).trim().toLowerCase();
@@ -239,11 +250,48 @@ async function promptCheckpoint(rl, [id, instruction], nonInteractive) {
   }
 }
 
-function markdownReport(state) {
+export function markdownReport(state) {
   const rows = state.checkpoints
     .map((item) => `| ${item.id} | ${item.status} | ${String(item.note || "").replace(/\|/g, "\\|")} |`)
     .join("\n");
-  return `# Fold7 Device Acceptance Report\n\n- Run ID: ${state.runId}\n- Phase: ${state.phase}\n- Started: ${state.startedAt}\n- Updated: ${state.updatedAt}\n- Device: ${state.device?.model || "unknown"}\n- Android: ${state.device?.androidVersion || "unknown"}\n- WebView: ${state.device?.webView || "unknown"}\n- Device serial: ${state.deviceSerialRedacted || "unknown"}\n- APK SHA-256: ${state.apkSha256 || "unknown"}\n- Test data path: ${state.dataDir}\n\n## Automated steps\n\n${state.steps.map((step) => `- **${step.status}** ${step.name}${step.note ? ` — ${step.note}` : ""}`).join("\n")}\n\n## Human checkpoints\n\n| ID | Result | Note |\n| --- | --- | --- |\n${rows || "| - | PENDING | No checkpoint executed |"}\n\n## Interpretation\n\n- `PASS`: observed and accepted during this run.\n- `FAIL`: acceptance failed and requires correction/retest.\n- `SKIP`: intentionally not executed; reason should be recorded.\n- `PENDING`: automation prepared the check but a user has not accepted it yet.\n- Software-induced API interruption is not evidence of a physical USB disconnect.\n- Mock/injected coordinates are not evidence of real-device GPS acceptance.\n`;
+  const automatedSteps = state.steps
+    .map((stepItem) => `- **${stepItem.status}** ${stepItem.name}${stepItem.note ? ` — ${stepItem.note}` : ""}`)
+    .join("\n");
+
+  return [
+    "# Fold7 Device Acceptance Report",
+    "",
+    `- Run ID: ${state.runId}`,
+    `- Phase: ${state.phase}`,
+    `- Started: ${state.startedAt}`,
+    `- Updated: ${state.updatedAt}`,
+    `- Device: ${state.device?.model || "unknown"}`,
+    `- Android: ${state.device?.androidVersion || "unknown"}`,
+    `- WebView: ${state.device?.webView || "unknown"}`,
+    `- Device serial: ${state.deviceSerialRedacted || "unknown"}`,
+    `- APK SHA-256: ${state.apkSha256 || "unknown"}`,
+    `- Test data path: ${state.dataDir}`,
+    "",
+    "## Automated steps",
+    "",
+    automatedSteps,
+    "",
+    "## Human checkpoints",
+    "",
+    "| ID | Result | Note |",
+    "| --- | --- | --- |",
+    rows || "| - | PENDING | No checkpoint executed |",
+    "",
+    "## Interpretation",
+    "",
+    "- PASS: observed and accepted during this run.",
+    "- FAIL: acceptance failed and requires correction/retest.",
+    "- SKIP: intentionally not executed; reason should be recorded.",
+    "- PENDING: automation prepared the check but a user has not accepted it yet.",
+    "- Software-induced API interruption is not evidence of a physical USB disconnect.",
+    "- Mock/injected coordinates are not evidence of real-device GPS acceptance.",
+    "",
+  ].join("\n");
 }
 
 function updateState(runDir, state) {
@@ -260,6 +308,19 @@ function step(state, name, fn) {
   } catch (error) {
     state.steps.push({ name, status: "FAIL", note: error.message });
     throw error;
+  }
+}
+
+function restoreAfterPhysicalUsb(adb, serial, state) {
+  try {
+    run(adb, ["-s", serial, "wait-for-device"], { timeout: 30_000 });
+    run(adb, ["-s", serial, "reverse", "tcp:8787", "tcp:8787"], { timeout: 15_000 });
+    state.steps.push({ name: "restore adb after physical USB checkpoint", status: "PASS" });
+    return null;
+  } catch (error) {
+    const note = `USB 재연결 후 adb/reverse 자동 복구 실패: ${error.message}`;
+    state.steps.push({ name: "restore adb after physical USB checkpoint", status: "FAIL", note });
+    return note;
   }
 }
 
@@ -282,7 +343,9 @@ async function runDay0(options, io = console) {
     ...preflightReport,
     adb: { ...preflightReport.adb, selectedSerial: redactSerial(device.serial) },
   });
-  if (preflightReport.exitCode !== 0) throw new Error(`Preflight blocked: ${preflightReport.outcome}`);
+  if (preflightReport.exitCode !== 0) {
+    throw new Error(`Preflight blocked: ${preflightReport.outcome}`);
+  }
 
   const dataDir = relative(rootDir, resolve(rootDir, "data", runId));
   const state = {
@@ -294,7 +357,9 @@ async function runDay0(options, io = console) {
     updatedAt: new Date().toISOString(),
     dataDir,
     apkPath: options.apkPath,
-    apkSha256: preflightReport.localApk?.sha256 || createHash("sha256").update(readFileSync(apkAbsolute)).digest("hex"),
+    apkSha256:
+      preflightReport.localApk?.sha256 ||
+      createHash("sha256").update(readFileSync(apkAbsolute)).digest("hex"),
     device: preflightReport.device,
     deviceSerialRedacted: redactSerial(device.serial),
     steps: [],
@@ -308,20 +373,34 @@ async function runDay0(options, io = console) {
   try {
     const alreadyHealthy = await healthOk();
     if (options.reuseServer) {
-      if (!alreadyHealthy) throw new Error("--reuse-server was requested but /api/health is not available.");
+      if (!alreadyHealthy) {
+        throw new Error("--reuse-server was requested but /api/health is not available.");
+      }
       state.steps.push({ name: "reuse existing pilot server", status: "PASS" });
     } else {
-      if (alreadyHealthy) throw new Error("Port 8787 already has a healthy pilot server. Stop it or rerun with --reuse-server.");
+      if (alreadyHealthy) {
+        throw new Error("Port 8787 already has a healthy pilot server. Stop it or rerun with --reuse-server.");
+      }
       serverChild = startServer(dataDir);
       let serverStderr = "";
-      serverChild.stderr.on("data", (chunk) => { serverStderr += chunk.toString("utf8"); });
-      if (!(await waitForHealth())) throw new Error(`Pilot server did not become healthy. ${redactText(serverStderr)}`);
+      serverChild.stderr.on("data", (chunk) => {
+        serverStderr += chunk.toString("utf8");
+      });
+      if (!(await waitForHealth())) {
+        throw new Error(`Pilot server did not become healthy. ${redactText(serverStderr)}`);
+      }
       state.steps.push({ name: "start isolated pilot server", status: "PASS" });
     }
 
-    step(state, "adb reverse tcp:8787", () => run(adb, ["-s", device.serial, "reverse", "tcp:8787", "tcp:8787"]));
-    step(state, "install debug APK", () => run(adb, ["-s", device.serial, "install", "-r", apkAbsolute], { timeout: 2 * 60_000 }));
-    step(state, "launch WODSiege", () => run(adb, ["-s", device.serial, "shell", "am", "start", "-n", activityName]));
+    step(state, "adb reverse tcp:8787", () =>
+      run(adb, ["-s", device.serial, "reverse", "tcp:8787", "tcp:8787"]),
+    );
+    step(state, "install debug APK", () =>
+      run(adb, ["-s", device.serial, "install", "-r", apkAbsolute], { timeout: 2 * 60_000 }),
+    );
+    step(state, "launch WODSiege", () =>
+      run(adb, ["-s", device.serial, "shell", "am", "start", "-n", activityName]),
+    );
     await new Promise((resolvePromise) => setTimeout(resolvePromise, 1_500));
     collectEvidence(adb, device.serial, runDir, "A01-launch");
 
@@ -334,29 +413,55 @@ async function runDay0(options, io = console) {
       run(adb, ["-s", device.serial, "shell", "am", "start", "-n", activityName]);
     });
 
-    step(state, "simulate API connection loss", () => run(adb, ["-s", device.serial, "reverse", "--remove", "tcp:8787"]));
+    step(state, "simulate API connection loss", () =>
+      run(adb, ["-s", device.serial, "reverse", "--remove", "tcp:8787"]),
+    );
     await new Promise((resolvePromise) => setTimeout(resolvePromise, 500));
     collectEvidence(adb, device.serial, runDir, "A02-api-disconnected");
-    step(state, "restore API connection", () => run(adb, ["-s", device.serial, "reverse", "tcp:8787", "tcp:8787"]));
+    step(state, "restore API connection", () =>
+      run(adb, ["-s", device.serial, "reverse", "tcp:8787", "tcp:8787"]),
+    );
 
     rl = createInterface({ input, output });
     for (const checkpoint of DAY0_CHECKPOINTS) {
       if (checkpoint[0] === "H06" && !options.nonInteractive) {
-        output.write("\n물리 USB 단절은 adb reverse 제거와 다른 검사입니다. 실제 케이블을 분리→재연결한 뒤 adb 권한을 확인하고 계속하세요.\n");
+        output.write(
+          "\n물리 USB 단절은 adb reverse 제거와 다른 검사입니다. 실제 케이블을 분리→재연결한 뒤 앱의 오류/복구를 확인하고 결과를 입력하세요.\n",
+        );
       }
+
       const result = await promptCheckpoint(rl, checkpoint, options.nonInteractive);
+
+      if (checkpoint[0] === "H06" && !options.nonInteractive && result.status !== "SKIP") {
+        const restoreWarning = restoreAfterPhysicalUsb(adb, device.serial, state);
+        if (restoreWarning) {
+          result.evidenceWarnings = [...(result.evidenceWarnings || []), restoreWarning];
+        }
+      }
+
       const evidenceErrors = collectEvidence(adb, device.serial, runDir, result.id);
-      if (evidenceErrors.length) result.evidenceWarnings = evidenceErrors;
+      if (evidenceErrors.length) {
+        result.evidenceWarnings = [...(result.evidenceWarnings || []), ...evidenceErrors];
+      }
       state.checkpoints.push(result);
       updateState(runDir, state);
     }
-    state.day2Eligible = state.checkpoints.some((item) => item.id === "H07" && item.status === "PASS");
+    state.day2Eligible = state.checkpoints.some(
+      (item) => item.id === "H07" && item.status === "PASS",
+    );
     updateState(runDir, state);
     io.log(`Acceptance state written to ${relative(rootDir, runDir)}/report.md`);
-    return { exitCode: state.checkpoints.some((item) => item.status === "FAIL") ? EXIT.FAILED : EXIT.PASS_OR_PENDING, runDir };
+    return {
+      exitCode: state.checkpoints.some((item) => item.status === "FAIL")
+        ? EXIT.FAILED
+        : EXIT.PASS_OR_PENDING,
+      runDir,
+    };
   } finally {
     rl?.close();
-    try { run(adb, ["-s", device.serial, "reverse", "--remove", "tcp:8787"]); } catch {}
+    try {
+      run(adb, ["-s", device.serial, "reverse", "--remove", "tcp:8787"]);
+    } catch {}
     await stopServer(serverChild);
   }
 }
@@ -366,8 +471,12 @@ async function runDay2(options, io = console) {
   const statePath = resolve(runDir, "state.json");
   if (!existsSync(statePath)) throw new Error("Resume directory does not contain state.json.");
   const state = JSON.parse(readFileSync(statePath, "utf8"));
-  if (state.tool !== "wodsiege-device-acceptance") throw new Error("Resume state is not a WODSiege device acceptance run.");
-  if (!state.day2Eligible) throw new Error("DAY-0 state is not eligible for +48h finalization acceptance.");
+  if (state.tool !== "wodsiege-device-acceptance") {
+    throw new Error("Resume state is not a WODSiege device acceptance run.");
+  }
+  if (!state.day2Eligible) {
+    throw new Error("DAY-0 state is not eligible for +48h finalization acceptance.");
+  }
   state.phase = "day2";
   let rl;
   try {
@@ -381,7 +490,12 @@ async function runDay2(options, io = console) {
       updateState(runDir, state);
     }
     io.log(`DAY-2 acceptance updated ${relative(rootDir, runDir)}/report.md`);
-    return { exitCode: state.checkpoints.some((item) => item.status === "FAIL") ? EXIT.FAILED : EXIT.PASS_OR_PENDING, runDir };
+    return {
+      exitCode: state.checkpoints.some((item) => item.status === "FAIL")
+        ? EXIT.FAILED
+        : EXIT.PASS_OR_PENDING,
+      runDir,
+    };
   } finally {
     rl?.close();
   }
@@ -396,11 +510,16 @@ export async function main(args = process.argv.slice(2), io = console) {
     return EXIT.INVALID_ARGUMENT;
   }
   if (options.help) {
-    io.log("Usage: node scripts/device-acceptance.mjs [--serial SERIAL] [--build] [--reuse-server] [--non-interactive] [--output-dir artifacts/RUN] [--phase day0|day2] [--resume artifacts/RUN]");
+    io.log(
+      "Usage: node scripts/device-acceptance.mjs [--serial SERIAL] [--build] [--reuse-server] [--non-interactive] [--output-dir artifacts/RUN] [--phase day0|day2] [--resume artifacts/RUN]",
+    );
     return EXIT.PASS_OR_PENDING;
   }
   try {
-    const result = options.phase === "day2" ? await runDay2(options, io) : await runDay0(options, io);
+    const result =
+      options.phase === "day2"
+        ? await runDay2(options, io)
+        : await runDay0(options, io);
     return result.exitCode;
   } catch (error) {
     io.error(`Device acceptance blocked/failed: ${redactText(error.message, [options.serial])}`);
