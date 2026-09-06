@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="WODSiege 하위 에이전트의 작업별 모델·추론 수준 배정과 실제 실행 컨텍스트 대조 보고서">
+<title>WODSiege · 모델과 추론 수준 배정 이력</title>
+<style>
+:root{--ink:#102333;--muted:#536575;--paper:#f0f4f7;--white:#fff;--accent:#e56a36;--good:#29735e;--line:#cbd6df;--soft:#eaf4ef;--mono:ui-monospace,"Cascadia Code",Consolas,monospace;--body:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.75 var(--body)}a{color:inherit;text-underline-offset:4px}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:4px}.wrap{max-width:1180px;width:calc(100% - 64px);margin:auto}.mast{background:var(--ink);color:var(--white);padding:22px 0}.mast .wrap{display:flex;justify-content:space-between;gap:16px;align-items:center}.brand{font:bold 16px var(--mono);letter-spacing:.07em}.topnote{font-size:12px;color:#b9cbd8}.hero{padding:66px 0 40px}.eyebrow{font:700 12px var(--mono);letter-spacing:.12em;color:var(--muted);margin:0 0 18px}h1{font-size:clamp(32px,4.8vw,58px);letter-spacing:-.065em;line-height:1.2;margin:0 0 24px;max-width:900px}h1 span{color:var(--good)}.lead{font-size:18px;max-width:880px;margin:0 0 22px}.verdict{border-left:5px solid var(--accent);padding:16px 22px;background:var(--white);max-width:970px}.verdict p{margin:0}.small{font-size:13px;color:var(--muted)}.meta{display:flex;flex-wrap:wrap;gap:8px 24px;margin:22px 0;font-size:12px;color:var(--muted)}.actions{display:flex;gap:10px;flex-wrap:wrap}.button{border:1px solid var(--ink);background:transparent;padding:9px 15px;border-radius:5px;color:var(--ink);font-size:13px;text-decoration:none}.button.primary{background:var(--ink);color:white}.nav{display:flex;gap:24px;flex-wrap:wrap;border-block:1px solid var(--line);padding:17px 0;margin-top:32px;font-size:14px}.nav a{text-decoration:none}.section{padding:44px 0;border-bottom:1px solid var(--line)}.sectionhead{display:grid;grid-template-columns:1fr 1.15fr;gap:30px;margin-bottom:26px;align-items:end}.sectionhead p{margin:0;color:var(--muted)}h2{font-size:28px;letter-spacing:-.045em;line-height:1.35;margin:0 0 8px}h3{font-size:19px;margin:0 0 8px;letter-spacing:-.025em}p{margin:0 0 16px}.note{padding:14px 18px;border:1px solid var(--line);border-radius:6px;margin:20px 0;background:var(--white);font-size:14px}.tag{display:inline-block;border:1px solid var(--line);padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;white-space:nowrap}.tag.good{background:var(--soft);color:var(--good);border-color:#bdd7c9}.tag.subtle{background:#f2f5f8;color:var(--muted)}.ledger{display:grid;gap:16px}.route{background:var(--white);border:1px solid var(--line);border-radius:8px;overflow:hidden}.routehead{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:18px 24px;border-bottom:1px solid var(--line)}.routehead h3{margin:0}.agentcode{font:12px var(--mono);color:var(--muted);margin-top:5px}.routing{display:grid;grid-template-columns:1fr 54px 1fr 1fr;align-items:center;gap:14px;padding:22px 24px}.caption{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}.model{font-size:18px;font-weight:750;letter-spacing:-.02em}.effort{font:12px var(--mono);color:var(--muted);margin-top:4px}.arrow{font:28px var(--mono);color:var(--good);text-align:center}.times{border-left:1px solid var(--line);padding-left:20px;font:13px/1.85 var(--mono)}.routebody{display:grid;grid-template-columns:1fr 1fr;gap:26px;padding:0 24px 22px;font-size:14px}.routebody p{margin:0 0 8px}.routebody strong{font-weight:700}.routebody ul{padding-left:19px;margin:8px 0}.route details{border-top:1px solid var(--line);padding:12px 24px;background:#fafcfd;font-size:12px}.route summary{cursor:pointer;font-weight:650;padding:3px 0}.evidence-content{margin-top:14px}.evidence-content p{overflow-wrap:anywhere}.evidence-content pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:14px;background:#eaf0f5;border-radius:4px;font:11px/1.65 var(--mono)}.source-ref{font:11px/1.6 var(--mono);overflow-wrap:anywhere}.table-wrap{overflow:auto;background:var(--white);border:1px solid var(--line);border-radius:6px}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;vertical-align:top;padding:15px;border-bottom:1px solid var(--line)}th{background:#e6edf2;font-size:12px}tr:last-child td{border-bottom:0}.columns{display:grid;grid-template-columns:1fr 1fr;gap:22px}.panel{background:var(--white);border:1px solid var(--line);border-radius:7px;padding:24px}.panel ul{padding-left:20px;margin:12px 0 0}.panel li{margin-bottom:10px;font-size:14px}.outcome{color:var(--good);font-weight:750}.timeline{list-style:none;padding:0;margin:0}.timeline li{display:grid;grid-template-columns:110px 1fr;gap:20px;padding:17px 0;border-bottom:1px solid var(--line)}.timeline time{font:13px/1.8 var(--mono);color:var(--muted)}.timeline p{margin:3px 0 0;font-size:14px;color:var(--muted)}.method-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.method-list li{border-top:3px solid var(--good);padding-top:15px}.method-list p{font-size:14px;color:var(--muted);margin:8px 0}.sources{font-size:13px}.sources li{padding:7px 0;overflow-wrap:anywhere}.foot{padding:28px 0 44px;font-size:12px;color:var(--muted)}code{font-family:var(--mono);font-size:.9em;overflow-wrap:anywhere}.screen-only{display:initial}
+@media(max-width:760px){.wrap{width:calc(100% - 32px)}.hero{padding-top:38px}.mast .wrap{align-items:start;flex-direction:column;gap:5px}.lead{font-size:16px}.sectionhead,.columns,.routebody{grid-template-columns:1fr;gap:16px}.routing{grid-template-columns:1fr 28px 1fr;padding:18px 16px;gap:8px}.times{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);padding:10px 0 0;margin-top:8px}.model{font-size:15px}.routehead{padding:15px 16px;align-items:start}.routehead h3{font-size:17px}.routebody{padding:0 16px 18px}.route details{padding:12px 16px}.method-list{grid-template-columns:1fr}.nav{gap:12px 20px}.section{padding:32px 0}.timeline li{grid-template-columns:84px 1fr;gap:12px}th,td{min-width:120px}.panel{padding:19px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{body{background:white;font-size:10pt}.wrap{width:100%;max-width:none}.mast{background:white;color:var(--ink);padding:0 0 12px;border-bottom:2px solid var(--ink)}.topnote{color:var(--muted)}.hero{padding:24px 0 10px}h1{font-size:30pt}.lead{font-size:12pt}.actions,.nav,.screen-only{display:none}.section{padding:22px 0}.route,.panel,.timeline li{break-inside:avoid}.sectionhead{grid-template-columns:1fr}.routebody{font-size:10pt}.route details{font-size:9pt}.table-wrap{overflow:visible}a{text-decoration:none}h2{font-size:19pt}.method-list{grid-template-columns:repeat(3,1fr)}.foot{padding:16px 0}@page{size:A4;margin:15mm}}
+</style>
+</head>
+<body>
+<header class="mast"><div class="wrap"><a class="brand" href="#top">WODSIEGE / EXECUTION RECORD</a><div class="topnote">모델·추론 수준 배정 대조 보고서 · 2026.09.06</div></div></header>
+<main id="top" class="wrap">
+<section class="hero" aria-labelledby="title">
+<p class="eyebrow">REQUEST → ASSIGNMENT → EXECUTION</p>
+<h1 id="title">작업별 모델 배정,<br><span>실행 기록으로 확인했습니다.</span></h1>
+<p class="lead">자동 배정을 요청하신 이후 생성된 하위 에이전트 <strong>4개 모두</strong>에서, 지정한 모델·추론 수준과 실제 실행 컨텍스트의 설정이 일치했습니다.</p>
+<div class="verdict"><p><strong>설정 이행: 확인.</strong> 백업·복구 <b>Astra / high</b>, HTTPS 준비·독립 검토 <b>Sol / high</b>, Fold7 사전 점검 <b>Terra / medium</b>.</p><p class="small">작업 위험에 따라 추론 수준을 달리한 구성은 타당합니다. 다만 대체 모델과 비용·시간을 비교한 실험은 없어 최적 배정이나 절감률까지 입증한 것은 아닙니다.</p></div>
+<div class="meta"><span>대상: WODSiege 개발·후속 준비 작업</span><span>시간: 2026-09-06 한국 표준시 KST</span><span>근거: 생성 호출 + 하위 실행 컨텍스트 + 완료 이벤트</span></div>
+<div class="actions"><button type="button" class="button primary" id="print">인쇄 / PDF 저장</button><button type="button" class="button" id="download">설정 근거 JSON 저장</button><a class="button" href="#allocation">작업별 배정 보기</a></div>
+<nav class="nav" aria-label="보고서 목차"><a href="#request">요청과 확인 방식</a><a href="#allocation">요청 이후 4개 배정</a><a href="#earlier">이전 작업과 직접 수행</a><a href="#review">검토 효과</a><a href="#sources">근거와 한계</a></nav>
+</section>
+
+<section class="section" id="request">
+<div class="sectionhead"><div><p class="eyebrow">USER INSTRUCTION</p><h2>어떤 요청을 기준으로 확인했나</h2></div><p>모델을 선택한 호출과 실제 하위 세션에 적용된 값을 각각 확인했습니다. 현재 기본 설정을 과거 작업에 소급하지 않았습니다.</p></div>
+<div class="note"><strong>사용자 요청 · 10:30:20</strong><p style="margin:8px 0 0">“다음 작업들도 수행해줘. 작업 수행 시 작업마다 적절한 모델과 추론 수준의 하위 에이전트에 알아서 할당해줘”</p><div class="small">부모 작업 로그의 사용자 메시지 568행. 이후 10:30:57부터 개별 설정을 명시한 배정이 시작됐습니다.</div></div>
+<ul class="method-list"><li><strong>생성 시 지정값</strong><p><code>spawn_agent</code>의 <code>model</code>, <code>reasoning_effort</code>, <code>fork_turns</code>를 추출했습니다.</p></li><li><strong>실행 중 적용값</strong><p>하위 로그의 모든 <code>turn_context</code>에서 <code>model</code>과 <code>effort</code>를 대조했습니다. 요청 이후 4개 작업에서 총 6개 컨텍스트가 일치했습니다.</p></li><li><strong>실행·반환 여부</strong><p>도구 실행 기록과 <code>task_complete</code>를 확인했습니다. 이 이벤트는 에이전트 턴 완료이며 제품 인수 통과와는 구분합니다.</p></li></ul>
+</section>
+
+<section class="section" id="allocation">
+<div class="sectionhead"><div><p class="eyebrow">EXPLICIT ROUTING / 4 TASKS</p><h2>요청 이후 실제 배정 내역</h2></div><p>아래 적절성 설명은 산출물과 실패 위험에 근거한 사후 평가입니다. 비공개 추론 내용이나 당시의 내부 사고 과정을 재구성한 것이 아닙니다.</p></div>
+<div class="ledger" id="routes"><article class="route" id="backup_restore">
+<div class="routehead"><div><h3>백업·새 경로 복구</h3><div class="agentcode">/root/backup_restore</div></div><span class="tag good">지정값 = 실행값</span></div>
+<div class="routing"><div><span class="caption">생성 시 지정</span><div class="model">GPT-6 Astra</div><div class="effort">reasoning_effort: high</div></div><span class="arrow" aria-hidden="true">→</span><div><span class="caption">하위 실행 컨텍스트</span><div class="model">GPT-6 Astra</div><div class="effort">effort: high</div></div><div class="times"><span class="caption">KST · 생성 / 마지막 턴 완료</span>10:30:57 → 10:38:05<br><span class="small">개별 지정 · fork_turns: none</span></div></div>
+<div class="routebody"><div><p><strong>배정 적절성 평가</strong></p><p>DB와 영상의 일관성, WAL 반영, 경로 탈출 방지, 세션 무효화를 함께 다룹니다. 데이터 손실 위험이 큰 범위에 high를 지정한 판단은 타당합니다.</p></div><div><p><strong>산출물과 검증</strong></p><p>SQLite 스냅샷·manifest·해시·참조 검증, 기존 대상 거부, 새 경로 복구와 세션 무효화.</p><p class="small">완료 보고: 백업·복구 테스트 13/13 통과. 실제 운영 데이터 변경 없음.</p><p class="source-ref">scripts/data-backup.mjs / tests/backup.test.mjs / docs/BACKUP-RESTORE.md</p></div></div>
+<details><summary>실행 근거 열기 · 생성 호출 / 실행 컨텍스트 / 완료 이벤트</summary><div class="evidence-content"><p><strong>부모 로그:</strong> rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl · 588행</p><p><strong>하위 로그:</strong> rollout-2026-09-06T10-30-57-01a07457-0fdf-7dc0-a3bb-877369d20c4f.jsonl · 실행 컨텍스트 8행 · 마지막 task_complete 99행</p><pre>{
+  &quot;spawn_agent&quot;: {
+    &quot;task_name&quot;: &quot;backup_restore&quot;,
+    &quot;model&quot;: &quot;gpt-6-astra&quot;,
+    &quot;reasoning_effort&quot;: &quot;high&quot;,
+    &quot;fork_turns&quot;: &quot;none&quot;
+  },
+  &quot;turn_contexts&quot;: [
+    {
+      &quot;line&quot;: 8,
+      &quot;model&quot;: &quot;gpt-6-astra&quot;,
+      &quot;effort&quot;: &quot;high&quot;
+    }
+  ]
+}</pre><p>메시지 본문은 제외하고 설정 확인에 필요한 필드만 발췌했습니다. 완료 이벤트는 구현 인수·외부 운영 완료를 뜻하지 않습니다.</p></div></details>
+</article>
+<article class="route" id="deployment_ready">
+<div class="routehead"><div><h3>HTTPS 배포 준비</h3><div class="agentcode">/root/deployment_ready</div></div><span class="tag good">지정값 = 실행값</span></div>
+<div class="routing"><div><span class="caption">생성 시 지정</span><div class="model">GPT-5.6 Sol</div><div class="effort">reasoning_effort: high</div></div><span class="arrow" aria-hidden="true">→</span><div><span class="caption">하위 실행 컨텍스트</span><div class="model">GPT-5.6 Sol</div><div class="effort">effort: high</div></div><div class="times"><span class="caption">KST · 생성 / 마지막 턴 완료</span>10:31:22 → 10:43:02<br><span class="small">개별 지정 · fork_turns: none</span></div></div>
+<div class="routebody"><div><p><strong>배정 적절성 평가</strong></p><p>프록시·Origin·secret·프로세스 종료·컨테이너 권한의 연결을 확인해야 합니다. 여러 설정의 보안 상호작용을 검토하는 high 배정은 타당합니다.</p></div><div><p><strong>산출물과 검증</strong></p><p>production 입력 검사, 비밀 파일 읽기, 비밀 값 없는 runtime 메타데이터, 종료 처리, Docker/Caddy 배포 구성.</p><p class="small">완료 보고: runtime·ingress 집중 검사 9/9 및 로컬 health 확인. Docker/Compose/Caddy 기동은 미검증.</p><p class="source-ref">server/runtime-config.mjs / server/index.mjs / deploy/ / tests/runtime-config.test.mjs</p></div></div>
+<details><summary>실행 근거 열기 · 생성 호출 / 실행 컨텍스트 / 완료 이벤트</summary><div class="evidence-content"><p><strong>부모 로그:</strong> rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl · 594행</p><p><strong>하위 로그:</strong> rollout-2026-09-06T10-31-22-01a07457-6fea-7eb2-aaee-9822970484f9.jsonl · 실행 컨텍스트 8행 · 마지막 task_complete 390행</p><pre>{
+  &quot;spawn_agent&quot;: {
+    &quot;task_name&quot;: &quot;deployment_ready&quot;,
+    &quot;model&quot;: &quot;gpt-5.6-sol&quot;,
+    &quot;reasoning_effort&quot;: &quot;high&quot;,
+    &quot;fork_turns&quot;: &quot;none&quot;
+  },
+  &quot;turn_contexts&quot;: [
+    {
+      &quot;line&quot;: 8,
+      &quot;model&quot;: &quot;gpt-5.6-sol&quot;,
+      &quot;effort&quot;: &quot;high&quot;
+    }
+  ]
+}</pre><p>메시지 본문은 제외하고 설정 확인에 필요한 필드만 발췌했습니다. 완료 이벤트는 구현 인수·외부 운영 완료를 뜻하지 않습니다.</p></div></details>
+</article>
+<article class="route" id="fold7_preflight">
+<div class="routehead"><div><h3>Fold7 읽기 전용 사전 점검</h3><div class="agentcode">/root/fold7_preflight</div></div><span class="tag good">지정값 = 실행값</span></div>
+<div class="routing"><div><span class="caption">생성 시 지정</span><div class="model">GPT-5.6 Terra</div><div class="effort">reasoning_effort: medium</div></div><span class="arrow" aria-hidden="true">→</span><div><span class="caption">하위 실행 컨텍스트</span><div class="model">GPT-5.6 Terra</div><div class="effort">effort: medium</div></div><div class="times"><span class="caption">KST · 생성 / 마지막 턴 완료</span>10:31:37 → 10:43:09<br><span class="small">개별 지정 · fork_turns: none</span></div></div>
+<div class="routebody"><div><p><strong>배정 적절성 평가</strong></p><p>명령 범위가 정해진 adb/APK 검사와 상태 분기가 중심입니다. medium으로 작성하고 독립 검토와 회귀 검사로 보완한 구성이 타당합니다.</p></div><div><p><strong>산출물과 검증</strong></p><p>기기 상태·모델·버전 검사, 비공개 보고서, APK 서명·패키지 검증, 차단 사유와 종료 코드.</p><p class="small">최종 완료 보고: 사전 점검 테스트 14개 통과. 후속 수정 턴을 포함해 3개 실행 컨텍스트 모두 Terra/medium 유지.</p><p class="source-ref">scripts/android-preflight.mjs / tests/android-preflight.test.mjs / docs/ANDROID-PREFLIGHT.md</p></div></div>
+<details><summary>실행 근거 열기 · 생성 호출 / 실행 컨텍스트 / 완료 이벤트</summary><div class="evidence-content"><p><strong>부모 로그:</strong> rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl · 600행</p><p><strong>하위 로그:</strong> rollout-2026-09-06T10-31-37-01a07457-ac84-7e90-81ac-4b0da1d4349b.jsonl · 실행 컨텍스트 8, 83, 126행 · 마지막 task_complete 197행</p><pre>{
+  &quot;spawn_agent&quot;: {
+    &quot;task_name&quot;: &quot;fold7_preflight&quot;,
+    &quot;model&quot;: &quot;gpt-5.6-terra&quot;,
+    &quot;reasoning_effort&quot;: &quot;medium&quot;,
+    &quot;fork_turns&quot;: &quot;none&quot;
+  },
+  &quot;turn_contexts&quot;: [
+    {
+      &quot;line&quot;: 8,
+      &quot;model&quot;: &quot;gpt-5.6-terra&quot;,
+      &quot;effort&quot;: &quot;medium&quot;
+    },
+    {
+      &quot;line&quot;: 83,
+      &quot;model&quot;: &quot;gpt-5.6-terra&quot;,
+      &quot;effort&quot;: &quot;medium&quot;
+    },
+    {
+      &quot;line&quot;: 126,
+      &quot;model&quot;: &quot;gpt-5.6-terra&quot;,
+      &quot;effort&quot;: &quot;medium&quot;
+    }
+  ]
+}</pre><p>메시지 본문은 제외하고 설정 확인에 필요한 필드만 발췌했습니다. 완료 이벤트는 구현 인수·외부 운영 완료를 뜻하지 않습니다.</p></div></details>
+</article>
+<article class="route" id="readiness_review">
+<div class="routehead"><div><h3>독립 안전성 검토</h3><div class="agentcode">/root/readiness_review</div></div><span class="tag good">지정값 = 실행값</span></div>
+<div class="routing"><div><span class="caption">생성 시 지정</span><div class="model">GPT-5.6 Sol</div><div class="effort">reasoning_effort: high</div></div><span class="arrow" aria-hidden="true">→</span><div><span class="caption">하위 실행 컨텍스트</span><div class="model">GPT-5.6 Sol</div><div class="effort">effort: high</div></div><div class="times"><span class="caption">KST · 생성 / 마지막 턴 완료</span>10:37:18 → 10:42:01<br><span class="small">개별 지정 · fork_turns: none</span></div></div>
+<div class="routebody"><div><p><strong>배정 적절성 평가</strong></p><p>작성자와 분리해 경로·권한·비밀 값·복구·설치 판단의 실패 조건을 조사했습니다. 재현을 포함한 high 검토가 실제 문제 발견으로 이어졌습니다.</p></div><div><p><strong>산출물과 검증</strong></p><p>파일을 수정하지 않는 검토. 일반 파일의 APK 오인과 운영자 secret 교체의 비밀번호 미변경을 재현.</p><p class="small">완료 보고: 중간 심각도 2건, 집중 검사 34개 통과. 검토 완료와 지적 사항 수정 완료는 별도 추적.</p><p class="source-ref">scripts/android-preflight.mjs / scripts/data-backup.mjs / server/ / deploy/</p></div></div>
+<details><summary>실행 근거 열기 · 생성 호출 / 실행 컨텍스트 / 완료 이벤트</summary><div class="evidence-content"><p><strong>부모 로그:</strong> rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl · 726행</p><p><strong>하위 로그:</strong> rollout-2026-09-06T10-37-18-01a0745c-df62-7692-a42a-1a534ecc9e5a.jsonl · 실행 컨텍스트 8행 · 마지막 task_complete 183행</p><pre>{
+  &quot;spawn_agent&quot;: {
+    &quot;task_name&quot;: &quot;readiness_review&quot;,
+    &quot;model&quot;: &quot;gpt-5.6-sol&quot;,
+    &quot;reasoning_effort&quot;: &quot;high&quot;,
+    &quot;fork_turns&quot;: &quot;none&quot;
+  },
+  &quot;turn_contexts&quot;: [
+    {
+      &quot;line&quot;: 8,
+      &quot;model&quot;: &quot;gpt-5.6-sol&quot;,
+      &quot;effort&quot;: &quot;high&quot;
+    }
+  ]
+}</pre><p>메시지 본문은 제외하고 설정 확인에 필요한 필드만 발췌했습니다. 완료 이벤트는 구현 인수·외부 운영 완료를 뜻하지 않습니다.</p></div></details>
+</article></div>
+<div class="note"><strong>병행 여부:</strong> 백업·복구, HTTPS 준비, Fold7 사전 점검의 실행 구간이 겹칩니다. 독립 검토는 10:37:18에 시작해 작성 중인 산출물을 점검했습니다. 시간은 생성 호출부터 마지막 완료 이벤트까지이며 순수 추론 시간·비용·연속 실행 시간을 뜻하지 않습니다.</div>
+</section>
+
+<section class="section" id="earlier">
+<div class="sectionhead"><div><p class="eyebrow">SCOPE SEPARATION</p><h2>모든 작업을 개별 모델로<br>배정한 것은 아닙니다.</h2></div><p>초기 개발의 하위 에이전트 3개는 부모 설정을 상속했습니다. 이후 재개·통합·문서 작업에는 주 에이전트의 직접 수행도 포함됩니다.</p></div>
+<h3>자동 모델 배정 요청 이전 · 설정 상속 3개</h3>
+<div class="table-wrap"><table><caption class="small" style="text-align:left;padding:12px 15px">생성 호출에 모델·추론 수준 override가 없고, 하위 실행 컨텍스트는 모두 gpt-6-astra / high였습니다.</caption><thead><tr><th scope="col">담당 작업</th><th scope="col">에이전트</th><th scope="col">실행 설정</th><th scope="col">생성 → 마지막 완료 · KST</th></tr></thead><tbody id="previous"><tr><td>도메인·API</td><td><code>pilot_api</code></td><td>GPT-6 Astra<br><code>high · 상속</code></td><td>01:42:43 → 01:59:33<br><span class="small">생성 66행 · 하위 첫 컨텍스트 7행</span></td></tr>
+<tr><td>Android 빌드</td><td><code>android_build</code></td><td>GPT-6 Astra<br><code>high · 상속</code></td><td>01:43:05 → 02:00:12<br><span class="small">생성 73행 · 하위 첫 컨텍스트 7행</span></td></tr>
+<tr><td>브라우저 QA</td><td><code>browser_qa</code></td><td>GPT-6 Astra<br><code>high · 상속</code></td><td>01:56:13 → 02:00:51<br><span class="small">생성 153행 · 하위 첫 컨텍스트 7행</span></td></tr></tbody></table></div>
+<p class="small" style="margin-top:12px">도메인·API, Android 빌드, 브라우저 QA의 실행은 확인됩니다. 작업별로 다른 모델을 선택한 사례는 아니며, 생성 시각이 10:30:20 요청보다 앞서므로 해당 요청의 불이행으로 소급 판단하지 않습니다.</p>
+<h3 style="margin-top:28px">재개 이후 · 주 에이전트 직접 수행</h3>
+<ol class="timeline"><li><time>13:13:20</time><div><strong>작업 재개 및 최종 보완</strong><p>Astra / high 실행 컨텍스트. 운영자 비밀번호 공백 처리 수정, 회귀 검사, 안내 문서와 상태 갱신. 하위 에이전트 신규 생성 없음.</p></div></li><li><time>13:32:22</time><div><strong>실기기·사용자 작업 가이드</strong><p>주 에이전트가 개조식 Markdown 작성과 링크·명령 구문 검증을 수행했습니다. 이 작업을 하위 에이전트에 위임한 이력은 없습니다.</p></div></li></ol>
+<div class="note">따라서 확인된 결론은 <strong>“후속 개발 4개 작업에 모델·추론 수준을 명시해 배정했다”</strong>입니다. 이후 모든 요청에 하위 에이전트를 계속 배정했다는 의미는 아닙니다. 이 보고서도 기존 이력을 조사·정리하는 주 에이전트 작업입니다.</div>
+</section>
+
+<section class="section" id="review">
+<div class="sectionhead"><div><p class="eyebrow">REVIEW → FIX → VERIFICATION</p><h2>독립 검토가 남긴 실제 효과</h2></div><p>Sol / high 검토 에이전트의 10:42:01 완료 보고에는 중간 심각도 문제 2건과 재현 결과가 기록되어 있습니다.</p></div>
+<div class="columns"><article class="panel"><span class="tag subtle">검토 지적 1</span><h3 style="margin-top:12px">일반 파일을 APK로 오인</h3><p class="small">사전 점검이 읽을 수 있는 파일을 APK로 인정해 준비 완료를 표시할 수 있었습니다. 검토자는 <code>package.json</code>을 APK 경로로 전달해 재현했습니다.</p><ul><li><strong>조치:</strong> <code>apksigner verify</code> 및 <code>aapt dump badging</code>으로 서명·패키지 확인 추가.</li><li><strong>확인:</strong> Terra / medium 에이전트가 10:43:09에 보강 완료와 사전 점검 테스트 14개 통과 보고.</li><li><strong>경계:</strong> 실제 기기는 계속 <code>BLOCKED_NO_DEVICE</code>. 도구 보강이 기기 인수를 대신하지 않음.</li></ul></article><article class="panel"><span class="tag subtle">검토 지적 2</span><h3 style="margin-top:12px">비밀 파일 교체로 비밀번호가 바뀌지 않음</h3><p class="small">기존 운영자는 bootstrap 시 갱신되지 않아, 새 secret으로 재시작해도 기존 비밀번호가 유효했습니다. 검토자가 임시 DB의 로그인 결과로 확인했습니다.</p><ul><li><strong>조치:</strong> 명시적 오프라인 비밀번호 변경 도구와 해당 운영자 세션 무효화 구현.</li><li><strong>재개 보완:</strong> 주 에이전트가 로그인 API와 앞뒤 공백 처리를 통일하고 사용 절차 작성.</li><li><strong>확인:</strong> 새 로그인 성공, 이전 비밀번호·세션 거부, 일반 회원 세션 유지 회귀 검사.</li></ul></article></div>
+<div class="note"><strong class="outcome">통합 검증 결과: 자동 테스트 54/54 · E2E 8/8 · 웹 빌드 성공.</strong><br>13시대 재개 작업에서 확인한 결과입니다. 에이전트별 중간 완료 보고의 45·49·50개 테스트 수는 서로 다른 시점의 전체 묶음이므로 합산하지 않습니다. 이번 HTML 작성에서 앱 테스트를 다시 실행한 수치는 아닙니다.</div>
+</section>
+
+<section class="section" id="assessment">
+<div class="sectionhead"><div><p class="eyebrow">ASSESSMENT</p><h2>설정은 확인됐고,<br>적절성은 이렇게 평가했습니다.</h2></div></div>
+<div class="columns"><article class="panel"><h3>타당하다고 판단한 부분</h3><ul><li>범위가 제한된 읽기 전용 기기 도구에는 medium, 데이터 복원과 배포 보안·독립 검토에는 high를 지정했습니다.</li><li>백업·복구는 DB·WAL·영상·세션·경로 안전성이 연결되어 있어 세밀한 검토가 필요한 범위였습니다.</li><li>독립 검토를 별도 에이전트에 맡겨 두 가지 실제 오류를 찾아 수정으로 연결했습니다.</li><li>명시적 배정 4개는 모두 <code>fork_turns: none</code>이며, 지정값이 하위 컨텍스트에 그대로 적용됐습니다.</li></ul></article><article class="panel"><h3>확인할 수 없는 부분</h3><ul><li>모델별 비교 실험이 없어 Astra·Sol·Terra 중 해당 작업에 가장 효율적인 모델이었다고 확정할 수 없습니다.</li><li>요금 명세와 비교 기준이 없어 작업별 비용·비용 절감률을 산출하지 않았습니다.</li><li>high·medium은 실행 설정값이며 내부 추론의 품질이나 실제 계산량을 직접 측정한 지표가 아닙니다.</li><li>생성·실행 컨텍스트는 로컬 런타임 증거입니다. 제공자의 별도 서비스 기록까지 대조한 것은 아닙니다.</li></ul></article></div>
+</section>
+
+<section class="section" id="sources">
+<div class="sectionhead"><div><p class="eyebrow">EVIDENCE REGISTER</p><h2>근거와 확인 범위</h2></div><p>설정 근거는 HTML 안에 포함되어 있습니다. JSON 저장 버튼으로 선별한 메타데이터만 내려받을 수 있습니다.</p></div>
+<ul class="sources"><li><strong>Orca 로컬 런타임:</strong> <code>~/.config/orca/codex-runtime-home/home/state_5.sqlite</code>의 WODSiege 작업 행과 부모·자식 연결 확인. DB의 <code>model</code>·<code>reasoning_effort</code>를 하위 로그와 대조.</li><li><strong>부모 로그:</strong> <code>rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl</code>. 요청 568행, 명시적 생성 588·594·600·726행. 각 카드의 세부 근거에 하위 파일명과 행 번호 기재.</li><li><strong>재개 로그:</strong> <code>rollout-2026-09-06T13-10-40-01a074e9-47e5-78f0-b681-7a70af11830b.jsonl</code>. 사용자 요청 9·103행, 실행 컨텍스트 Astra/high, 위 두 작업에서 생성 호출 없음.</li><li><strong>구현·검증 문서:</strong> <a href="../docs/READINESS-STATUS.md">후속 준비 현황</a>, <a href="../docs/IMPLEMENTATION-STATUS.md">초기 구현 현황</a>, <a href="../docs/OPERATOR-PASSWORD.md">운영자 비밀번호 변경</a>, <a href="../docs/USER-DEVICE-AND-LAUNCH-GUIDE.md">실기기·사용자 작업 가이드</a>.</li></ul>
+<div class="note"><strong>시간과 완료 상태 해석</strong><br>원시 UTC 이벤트 시각을 KST(UTC+09:00)로 변환했습니다. DB 연결 행의 <code>status: open</code>은 실행 중이라는 판정 근거로 사용하지 않았습니다. 이력상의 완료 시각은 각 로그의 <code>task_complete</code>를 기준으로 표시했습니다.</div>
+<p class="small">인증 파일, 비밀번호, 원시 위치·영상, 메시지 암호문과 비공개 추론 내용은 보고서에서 제외했습니다. 문서 작성 당시 확인한 이력 스냅샷이며 자동 갱신되지 않습니다. 파일을 단독으로 열어도 본문·근거 열기·JSON 저장·인쇄가 동작합니다. 관련 Markdown 링크는 저장소 폴더 구조를 함께 유지해야 열립니다.</p>
+</section>
+<footer class="foot">WODSiege · 2026-09-06 · 모델 배정 이력 보고서<br>실기기 인수·Docker 컨테이너 기동·외부 공개 배포는 별도 미완료 항목입니다.</footer>
+</main>
+<script id="evidence" type="application/json">{
+  "date": "2026-09-06",
+  "timezone": "Asia/Seoul (UTC+09:00)",
+  "scope": "WODSiege project thread metadata only",
+  "parent_thread": "01a07267-5c1e-7f90-87d6-9598c15929ef",
+  "request": {
+    "source_file": "rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl",
+    "line": 568,
+    "timestamp": "2026-09-06T01:30:20.109Z",
+    "text": "다음 작업들도 수행해줘. 작업 수행 시 작업마다 적절한 모델과 추론 수준의 하위 에이전트에 알아서 할당해줘"
+  },
+  "agents": [
+    {
+      "id": "01a07273-7316-79b1-bcec-47d895061895",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "high",
+      "agent_path": "/root/pilot_api",
+      "source_file": "rollout-2026-09-06T01-42-43-01a07273-7316-79b1-bcec-47d895061895.jsonl",
+      "contexts": [
+        {
+          "line": 7,
+          "timestamp": "2026-09-05T16:42:43.995Z",
+          "model": "gpt-6-astra",
+          "effort": "high"
+        },
+        {
+          "line": 14,
+          "timestamp": "2026-09-05T16:42:47.206Z",
+          "model": "gpt-6-astra",
+          "effort": "high"
+        }
+      ],
+      "completion_events": [
+        {
+          "line": 124,
+          "timestamp": "2026-09-05T16:59:33.410Z"
+        }
+      ],
+      "spawn": {
+        "line": 66,
+        "timestamp": "2026-09-05T16:42:43.802Z",
+        "arguments": {
+          "task_name": "pilot_api"
+        },
+        "source_file": "rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl"
+      },
+      "start_kst": "01:42:43",
+      "last_completion_kst": "01:59:33"
+    },
+    {
+      "id": "01a07273-c6d5-7283-86f6-701a0eebdf38",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "high",
+      "agent_path": "/root/android_build",
+      "source_file": "rollout-2026-09-06T01-43-05-01a07273-c6d5-7283-86f6-701a0eebdf38.jsonl",
+      "contexts": [
+        {
+          "line": 7,
+          "timestamp": "2026-09-05T16:43:05.357Z",
+          "model": "gpt-6-astra",
+          "effort": "high"
+        },
+        {
+          "line": 15,
+          "timestamp": "2026-09-05T16:43:07.261Z",
+          "model": "gpt-6-astra",
+          "effort": "high"
+        }
+      ],
+      "completion_events": [
+        {
+          "line": 275,
+          "timestamp": "2026-09-05T17:00:12.261Z"
+        }
+      ],
+      "spawn": {
+        "line": 73,
+        "timestamp": "2026-09-05T16:43:05.234Z",
+        "arguments": {
+          "task_name": "android_build"
+        },
+        "source_file": "rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl"
+      },
+      "start_kst": "01:43:05",
+      "last_completion_kst": "02:00:12"
+    },
+    {
+      "id": "01a0727f-cd9c-7392-be6b-c9d4f2f05db1",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "high",
+      "agent_path": "/root/browser_qa",
+      "source_file": "rollout-2026-09-06T01-56-13-01a0727f-cd9c-7392-be6b-c9d4f2f05db1.jsonl",
+      "contexts": [
+        {
+          "line": 7,
+          "timestamp": "2026-09-05T16:56:13.482Z",
+          "model": "gpt-6-astra",
+          "effort": "high"
+        },
+        {
+          "line": 16,
+          "timestamp": "2026-09-05T16:56:15.324Z",
+          "model": "gpt-6-astra",
+          "effort": "high"
+        }
+      ],
+      "completion_events": [
+        {
+          "line": 59,
+          "timestamp": "2026-09-05T17:00:51.417Z"
+        }
+      ],
+      "spawn": {
+        "line": 153,
+        "timestamp": "2026-09-05T16:56:13.415Z",
+        "arguments": {
+          "task_name": "browser_qa"
+        },
+        "source_file": "rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl"
+      },
+      "start_kst": "01:56:13",
+      "last_completion_kst": "02:00:51"
+    },
+    {
+      "id": "01a07457-0fdf-7dc0-a3bb-877369d20c4f",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "high",
+      "agent_path": "/root/backup_restore",
+      "source_file": "rollout-2026-09-06T10-30-57-01a07457-0fdf-7dc0-a3bb-877369d20c4f.jsonl",
+      "contexts": [
+        {
+          "line": 8,
+          "timestamp": "2026-09-06T01:30:59.475Z",
+          "model": "gpt-6-astra",
+          "effort": "high"
+        }
+      ],
+      "completion_events": [
+        {
+          "line": 99,
+          "timestamp": "2026-09-06T01:38:05.565Z"
+        }
+      ],
+      "spawn": {
+        "line": 588,
+        "timestamp": "2026-09-06T01:30:57.842Z",
+        "arguments": {
+          "task_name": "backup_restore",
+          "model": "gpt-6-astra",
+          "reasoning_effort": "high",
+          "fork_turns": "none"
+        },
+        "source_file": "rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl"
+      },
+      "start_kst": "10:30:57",
+      "last_completion_kst": "10:38:05"
+    },
+    {
+      "id": "01a07457-6fea-7eb2-aaee-9822970484f9",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "high",
+      "agent_path": "/root/deployment_ready",
+      "source_file": "rollout-2026-09-06T10-31-22-01a07457-6fea-7eb2-aaee-9822970484f9.jsonl",
+      "contexts": [
+        {
+          "line": 8,
+          "timestamp": "2026-09-06T01:31:24.337Z",
+          "model": "gpt-5.6-sol",
+          "effort": "high"
+        }
+      ],
+      "completion_events": [
+        {
+          "line": 390,
+          "timestamp": "2026-09-06T01:43:02.238Z"
+        }
+      ],
+      "spawn": {
+        "line": 594,
+        "timestamp": "2026-09-06T01:31:22.418Z",
+        "arguments": {
+          "task_name": "deployment_ready",
+          "model": "gpt-5.6-sol",
+          "reasoning_effort": "high",
+          "fork_turns": "none"
+        },
+        "source_file": "rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl"
+      },
+      "start_kst": "10:31:22",
+      "last_completion_kst": "10:43:02"
+    },
+    {
+      "id": "01a07457-ac84-7e90-81ac-4b0da1d4349b",
+      "model": "gpt-5.6-terra",
+      "reasoning_effort": "medium",
+      "agent_path": "/root/fold7_preflight",
+      "source_file": "rollout-2026-09-06T10-31-37-01a07457-ac84-7e90-81ac-4b0da1d4349b.jsonl",
+      "contexts": [
+        {
+          "line": 8,
+          "timestamp": "2026-09-06T01:31:39.629Z",
+          "model": "gpt-5.6-terra",
+          "effort": "medium"
+        },
+        {
+          "line": 83,
+          "timestamp": "2026-09-06T01:35:12.395Z",
+          "model": "gpt-5.6-terra",
+          "effort": "medium"
+        },
+        {
+          "line": 126,
+          "timestamp": "2026-09-06T01:41:11.083Z",
+          "model": "gpt-5.6-terra",
+          "effort": "medium"
+        }
+      ],
+      "completion_events": [
+        {
+          "line": 81,
+          "timestamp": "2026-09-06T01:34:24.678Z"
+        },
+        {
+          "line": 124,
+          "timestamp": "2026-09-06T01:37:04.938Z"
+        },
+        {
+          "line": 197,
+          "timestamp": "2026-09-06T01:43:09.740Z"
+        }
+      ],
+      "spawn": {
+        "line": 600,
+        "timestamp": "2026-09-06T01:31:37.850Z",
+        "arguments": {
+          "task_name": "fold7_preflight",
+          "model": "gpt-5.6-terra",
+          "reasoning_effort": "medium",
+          "fork_turns": "none"
+        },
+        "source_file": "rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl"
+      },
+      "start_kst": "10:31:37",
+      "last_completion_kst": "10:43:09"
+    },
+    {
+      "id": "01a0745c-df62-7692-a42a-1a534ecc9e5a",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "high",
+      "agent_path": "/root/readiness_review",
+      "source_file": "rollout-2026-09-06T10-37-18-01a0745c-df62-7692-a42a-1a534ecc9e5a.jsonl",
+      "contexts": [
+        {
+          "line": 8,
+          "timestamp": "2026-09-06T01:37:20.314Z",
+          "model": "gpt-5.6-sol",
+          "effort": "high"
+        }
+      ],
+      "completion_events": [
+        {
+          "line": 183,
+          "timestamp": "2026-09-06T01:42:01.695Z"
+        }
+      ],
+      "spawn": {
+        "line": 726,
+        "timestamp": "2026-09-06T01:37:18.629Z",
+        "arguments": {
+          "task_name": "readiness_review",
+          "model": "gpt-5.6-sol",
+          "reasoning_effort": "high",
+          "fork_turns": "none"
+        },
+        "source_file": "rollout-2026-09-06T01-29-31-01a07267-5c1e-7f90-87d6-9598c15929ef.jsonl"
+      },
+      "start_kst": "10:37:18",
+      "last_completion_kst": "10:42:01"
+    }
+  ]
+}</script>
+<script>
+document.getElementById('print').addEventListener('click',()=>window.print());
+document.getElementById('download').addEventListener('click',()=>{const content=document.getElementById('evidence').textContent;const url=URL.createObjectURL(new Blob([content],{type:'application/json;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='wodsiege-model-allocation-evidence-2026-09-06.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+let closedForPrint=[];window.addEventListener('beforeprint',()=>{closedForPrint=[...document.querySelectorAll('details:not([open])')];closedForPrint.forEach(d=>d.open=true)});window.addEventListener('afterprint',()=>{closedForPrint.forEach(d=>d.open=false);closedForPrint=[]});
+</script>
+</body>
+</html>

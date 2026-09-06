@@ -64,6 +64,7 @@ npm run test:e2e
 ## 문서와 작업 패키지
 
 - [실기기 검증 및 사용자 작업 가이드](docs/USER-DEVICE-AND-LAUNCH-GUIDE.md): USB 설치부터 수동 검사, 운영·배포 준비와 결과 기록까지 단계별 체크리스트.
+- [모델·추론 수준 배정 이력 HTML](reports/wodsiege-agent-allocation-history.html): 작업별 생성 설정과 실행 컨텍스트 대조, 산출물·검토 효과·확인 한계.
 - [제품 개념 기획안](docs/PLAN-2026-09-06-wodsiege-product-concept.md)
 - [작업 지시서](intent-docs/INTENT-2026-09-06-wodsiege-android-pilot.md): 사용자 요청에 따라 `intent-docs/`는 Git에서 제외되어 로컬에만 존재합니다.
 - [make-prompts 실행 패키지](to-do-prompts/wodsiege-android-pilot/main.md): main과 4개 step. exec-prompts로 이어서 구현합니다.
