@@ -356,7 +356,7 @@ export function main(args = process.argv.slice(2), io = console, { preflightFn =
   const report = preflightFn(options);
   if (options.output) {
     try {
-      writeReport(options.output, report);
+      writeReportFn(options.output, report);
     } catch (error) {
       io.error(`Report not written: ${error.message}`);
       return EXIT.OUTPUT_REFUSED;
