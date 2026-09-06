@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { lstatSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { EXIT, main, preflight, writeReport } from "../scripts/android-preflight.mjs";
+import { EXIT, main, parseWebViewDump, preflight, writeReport } from "../scripts/android-preflight.mjs";
 
 const adbDevices = (rows) => `List of devices attached\n${rows.join("\n")}\n`;
 
@@ -16,6 +16,7 @@ function runner(devices, values = {}) {
     if (args[0] === "dump") return "package: name='app.wodsiege.pilot' versionCode='1' versionName='0.1.0'\n";
     const key = args.slice(-1)[0];
     if (key === "getCurrentWebViewPackage") return values.webView || "com.google.android.webview 123";
+    if (args.includes("dumpsys")) return values.webViewDump || "Current WebView package (name, version): (com.google.android.webview, 123)\n";
     if (args.includes("getprop")) return values[key] || ({ "ro.product.model": "SM-F966N", "ro.build.version.release": "16", "ro.build.version.sdk": "36" }[key]);
     if (args.includes("pm")) return values.pmPath || "package:/data/app/app.wodsiege.pilot/base.apk\n";
     throw new Error(`unexpected command: ${args.join(" ")}`);
@@ -61,8 +62,41 @@ test("authorized device uses only the read-only adb command allowlist", () => {
     assert.equal(args.includes("reverse"), false);
     assert.equal(args.includes("logcat"), false);
     assert.equal(args.includes("am"), false);
-    assert.equal(args[0] === "devices" || args[0] === "verify" || args[0] === "dump" || (args.includes("shell") && (args.includes("getprop") || args.includes("webviewupdate") || args.includes("pm"))), true);
+    assert.equal(args[0] === "devices" || args[0] === "verify" || args[0] === "dump" || (args.includes("shell") && (args.includes("getprop") || args.includes("webviewupdate") || args.includes("dumpsys") || args.includes("pm"))), true);
   }
+});
+
+test("OEM WebView cmd failure falls back to dumpsys without blocking readiness", () => {
+  const { run: base } = runner(["SERIAL device"]);
+  const run = (command, args, options) => {
+    if (args.includes("getCurrentWebViewPackage")) throw new Error("Unknown command: getCurrentWebViewPackage");
+    if (args.includes("dumpsys")) {
+      return "Current WebView Update Service state\n  Current WebView package (name, version): (com.google.android.webview, 140.0.7339.207)\n";
+    }
+    return base(command, args, options);
+  };
+  const report = preflight({ adb: "adb", run });
+  assert.equal(report.outcome, "READY_FOR_MANUAL_ACCEPTANCE");
+  assert.equal(report.device.webView, "com.google.android.webview 140.0.7339.207");
+});
+
+test("unavailable WebView metadata is non-blocking", () => {
+  const { run: base } = runner(["SERIAL device"]);
+  const run = (command, args, options) => {
+    if (args.includes("getCurrentWebViewPackage") || args.includes("dumpsys")) throw new Error("unsupported");
+    return base(command, args, options);
+  };
+  const report = preflight({ adb: "adb", run });
+  assert.equal(report.outcome, "READY_FOR_MANUAL_ACCEPTANCE");
+  assert.equal(report.device.webView, null);
+});
+
+test("parseWebViewDump accepts tuple output and rejects null", () => {
+  assert.equal(
+    parseWebViewDump("Current WebView package (name, version): (com.google.android.webview, 140.0.1)"),
+    "com.google.android.webview 140.0.1",
+  );
+  assert.equal(parseWebViewDump("Current WebView package: null"), null);
 });
 
 test("explicit serial is retained and can select one device", () => {
