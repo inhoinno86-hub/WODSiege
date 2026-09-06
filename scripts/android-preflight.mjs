@@ -145,8 +145,32 @@ function readProperty(run, adb, serial, property) {
   return run(adb, ["-s", serial, "shell", "getprop", property]).trim() || null;
 }
 
+export function parseWebViewDump(text) {
+  const dump = String(text || "");
+  const tuple = /Current WebView package(?: \(name, version\))?\s*:\s*\(([^,]+),\s*([^)]+)\)/i.exec(dump);
+  if (tuple) return `${tuple[1].trim()} ${tuple[2].trim()}`;
+  const simple = /Current WebView package\s*:\s*([^\r\n]+)/i.exec(dump);
+  if (simple && !/\bnull\b/i.test(simple[1])) return simple[1].trim();
+  return null;
+}
+
+export function readWebViewPackage(run, adb, serial) {
+  try {
+    const direct = run(adb, ["-s", serial, "shell", "cmd", "webviewupdate", "getCurrentWebViewPackage"]).trim();
+    if (direct) return direct;
+  } catch {
+    // Some OEM Android builds do not expose this cmd subcommand. Fall back to
+    // the read-only service dump rather than blocking the whole device preflight.
+  }
+  try {
+    return parseWebViewDump(run(adb, ["-s", serial, "shell", "dumpsys", "webviewupdate"]));
+  } catch {
+    return null;
+  }
+}
+
 export function inspectDevice({ adb, serial, run = defaultRun }) {
-  const webView = run(adb, ["-s", serial, "shell", "cmd", "webviewupdate", "getCurrentWebViewPackage"]).trim();
+  const webView = readWebViewPackage(run, adb, serial);
   let installedApkPath;
   try {
     installedApkPath = run(adb, ["-s", serial, "shell", "pm", "path", packageName])
@@ -187,6 +211,7 @@ function baseReport(apkPath, explicitSerial) {
     limitations: [
       "No install, app launch, adb reverse, logcat, location collection, screenshots, or user-data extraction was performed.",
       "A model string alone is not evidence that the device is a Galaxy Z Fold7.",
+      "WebView package metadata is best-effort and may be unavailable on OEM Android builds without blocking readiness.",
     ],
   };
 }
