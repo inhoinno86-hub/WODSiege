@@ -16,6 +16,7 @@
     "android:sync": "npm run build && cap sync android",
     "android:build": "npm run android:sync && bash scripts/build-android.sh",
     "android:preflight": "node scripts/android-preflight.mjs",
+    "android:acceptance": "node scripts/device-acceptance.mjs",
     "data:backup": "node scripts/data-backup.mjs backup",
     "data:verify": "node scripts/data-backup.mjs verify",
     "data:restore": "node scripts/data-backup.mjs restore",
